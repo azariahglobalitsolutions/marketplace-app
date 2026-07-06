@@ -1,34 +1,86 @@
-# marketplace-app
+# Habesha Events USA
 
-Python Flask API for the marketplace application.
+Eventbrite-style web application for listing Habesha cultural events across the United States.
 
-## Local setup
+## Tech Stack
+
+- **Frontend:** HTML5, Tailwind CSS, JavaScript
+- **Backend:** Node.js + Express
+- **Database:** SQLite (modular config for future PostgreSQL migration)
+- **Analytics:** prom-client (Prometheus metrics at `/metrics`)
+
+## Quick Start
 
 ```bash
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
 cp .env.example .env
-python app.py
+npm install
+npm start
 ```
 
-## Environment variables
+Open `http://localhost:3000`
+
+## Default Admin Account
+
+- **Email:** `admin@habeshaevents.com`
+- **Password:** `admin123`
+
+Change this password in production.
+
+## Pages
+
+| Route | Description |
+|-------|-------------|
+| `/` | Daily events portal with state filter |
+| `/login.html` | Sign up / sign in |
+| `/advertise.html` | Advertising pricing & inquiry form |
+| `/admin/moderation` | Admin approval dashboard |
+
+## Access Rules
+
+- **Public:** Browse approved events, filter by state, view daily schedules
+- **Authenticated:** Create event listings, view organizer contact details
+- **Admin:** Approve/reject pending events, view ad inquiries
+
+## API Endpoints
+
+- `GET /api/events?state=Virginia` — List approved events (strict state filter)
+- `POST /api/events` — Create event (auth required, status: pending)
+- `POST /api/auth/register` — Register
+- `POST /api/auth/login` — Login
+- `GET /api/admin/pending` — Pending events (admin)
+- `POST /api/admin/:id/approve` — Approve event (admin)
+- `GET /api/advertise/tiers` — Pricing tiers
+- `POST /api/advertise/inquiry` — Submit ad inquiry
+- `GET /metrics` — Prometheus metrics
+- `GET /health` — Health check
+
+## Environment Variables
 
 | Name | Description |
 |------|-------------|
-| `SECRET_KEY` | Secret key for app security |
-| `PORT` | Server port (Render sets this automatically) |
+| `PORT` | Server port (default: 3000) |
+| `JWT_SECRET` | Secret for JWT tokens |
+| `DATABASE_PATH` | SQLite file path |
+| `NODE_ENV` | `development` or `production` |
 
-## Render deployment
+## Render Deployment
 
-- **Build command:** `pip install -r requirements.txt`
-- **Start command:** `gunicorn app:app --bind 0.0.0.0:$PORT`
+- **Build:** `npm install`
+- **Start:** `node server.js`
 
-If Render uses the default `gunicorn your_application.wsgi` command, this repo also includes `your_application/wsgi.py` so that command works too.
+## Project Structure
 
-## API endpoints
-
-- `GET /` — Home page
-- `GET /login` — Login page
-- `GET /health` — Health check
-- `POST /api/login` — Login API
+```
+├── server.js
+├── public/
+│   ├── index.html
+│   ├── login.html
+│   ├── admin.html
+│   ├── advertise.html
+│   └── js/
+├── src/
+│   ├── config/db.js
+│   ├── middleware/
+│   └── routes/
+└── data/          (SQLite DB, gitignored)
+```

@@ -1,7 +1,9 @@
+node_modules/
 .env
-.venv/
-venv/
+data/
+*.db
+.DS_Store
+npm-debug.log*
 __pycache__/
 *.pyc
-.pytest_cache/
-.DS_Store
+your_application/

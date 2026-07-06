@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Moderation - Habesha Events USA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <header class="bg-gray-900 text-white">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div>
+        <p class="text-xs text-gray-400 uppercase tracking-wider">Admin Dashboard</p>
+        <h1 class="text-xl font-bold">Event Moderation</h1>
+      </div>
+      <div class="flex items-center gap-4 text-sm">
+        <a href="/" class="text-gray-300 hover:text-white">← Public Site</a>
+        <button id="logout-btn" class="text-red-400 hover:text-red-300">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-8">
+    <div id="access-denied" class="hidden text-center py-20">
+      <p class="text-xl text-red-600 font-semibold">Admin access required</p>
+      <a href="/login.html" class="text-amber-700 underline mt-2 inline-block">Sign in as admin</a>
+    </div>
+
+    <div id="admin-content" class="hidden">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg font-bold text-gray-900">Pending Approval Queue</h2>
+        <span id="pending-count" class="bg-amber-100 text-amber-800 text-sm font-semibold px-3 py-1 rounded-full">0 pending</span>
+      </div>
+      <div id="pending-list" class="space-y-4"></div>
+
+      <h2 class="text-lg font-bold text-gray-900 mt-12 mb-4">Advertising Inquiries</h2>
+      <div id="inquiries-list" class="space-y-3"></div>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    const accessDenied = document.getElementById("access-denied");
+    const adminContent = document.getElementById("admin-content");
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      auth.clearSession();
+      window.location.href = "/login.html";
+    });
+
+    if (!auth.isLoggedIn() || !auth.isAdmin()) {
+      accessDenied.classList.remove("hidden");
+    } else {
+      adminContent.classList.remove("hidden");
+      loadPending();
+      loadInquiries();
+    }
+
+    async function loadPending() {
+      const list = document.getElementById("pending-list");
+      list.innerHTML = `<p class="text-gray-400">Loading...</p>`;
+      try {
+        const data = await api.get("/api/admin/pending");
+        document.getElementById("pending-count").textContent = `${data.events.length} pending`;
+
+        if (data.events.length === 0) {
+          list.innerHTML = `<p class="text-gray-400 text-center py-8">No events awaiting approval 🎉</p>`;
+          return;
+        }
+
+        list.innerHTML = data.events.map((e) => `
+          <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm" id="event-${e.id}">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 class="font-bold text-gray-900 text-lg">${e.title}</h3>
+                <p class="text-sm text-amber-700">${e.city}, ${e.state} · ${e.event_date}</p>
+                <p class="text-sm text-gray-500 mt-1">${e.description}</p>
+                <p class="text-xs text-gray-400 mt-2">Organizer: ${e.organizer_email || e.organizer_phone || "N/A"}</p>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="approveEvent(${e.id})" class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg font-medium">Approve</button>
+                <button onclick="rejectEvent(${e.id})" class="bg-red-100 hover:bg-red-200 text-red-700 text-sm px-4 py-2 rounded-lg font-medium">Reject</button>
+              </div>
+            </div>
+          </div>
+        `).join("");
+      } catch (err) {
+        list.innerHTML = `<p class="text-red-500">${err.message}</p>`;
+      }
+    }
+
+    async function loadInquiries() {
+      const list = document.getElementById("inquiries-list");
+      try {
+        const data = await api.get("/api/admin/ad-inquiries");
+        if (data.inquiries.length === 0) {
+          list.innerHTML = `<p class="text-gray-400 text-sm">No advertising inquiries yet.</p>`;
+          return;
+        }
+        list.innerHTML = data.inquiries.map((q) => `
+          <div class="bg-white rounded-lg border border-gray-200 p-4 text-sm">
+            <div class="flex justify-between">
+              <strong>${q.name}</strong>
+              <span class="text-amber-700 font-medium capitalize">${q.tier} tier</span>
+            </div>
+            <p class="text-gray-500">${q.email}${q.phone ? ` · ${q.phone}` : ""}</p>
+            ${q.message ? `<p class="text-gray-600 mt-1">${q.message}</p>` : ""}
+            <p class="text-xs text-gray-400 mt-1">${new Date(q.created_at).toLocaleString()}</p>
+          </div>
+        `).join("");
+      } catch (err) {
+        list.innerHTML = `<p class="text-red-500">${err.message}</p>`;
+      }
+    }
+
+    async function approveEvent(id) {
+      await api.post(`/api/admin/${id}/approve`);
+      document.getElementById(`event-${id}`)?.remove();
+      loadPending();
+    }
+
+    async function rejectEvent(id) {
+      await api.post(`/api/admin/${id}/reject`);
+      document.getElementById(`event-${id}`)?.remove();
+      loadPending();
+    }
+  </script>
+</body>
+</html>

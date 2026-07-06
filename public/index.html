@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Habesha Events USA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            habesha: { 50: '#fffbeb', 500: '#f59e0b', 600: '#d97706', 700: '#b45309', 900: '#78350f' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .btn-primary { @apply bg-habesha-600 hover:bg-habesha-700 text-white px-4 py-2 rounded-lg font-medium transition; }
+    .btn-outline { @apply border border-habesha-600 text-habesha-700 px-4 py-2 rounded-lg font-medium hover:bg-habesha-50 transition; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- Sticky filter bar -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-3">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <a href="/" class="text-xl font-bold text-habesha-700">🇪🇹 Habesha Events USA</a>
+        <nav class="flex items-center gap-4 text-sm font-medium text-gray-600">
+          <a href="/" class="text-habesha-700">Events</a>
+          <a href="/advertise.html" class="hover:text-habesha-700">Advertise With Us</a>
+          <span id="nav-auth"></span>
+        </nav>
+      </div>
+    </div>
+    <div class="bg-habesha-900 text-white">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center gap-4">
+        <label for="state-filter" class="font-semibold text-sm whitespace-nowrap">Filter by State:</label>
+        <select id="state-filter" class="bg-white text-gray-900 rounded-lg px-3 py-2 text-sm font-medium min-w-[180px] focus:ring-2 focus:ring-habesha-500 outline-none">
+          <option value="">All States</option>
+        </select>
+        <span class="text-habesha-200 text-sm ml-auto">
+          Showing <strong id="filter-label" class="text-white">All States</strong>
+          · <strong id="event-count" class="text-white">0</strong> events
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-8">
+    <!-- Hero -->
+    <section class="mb-10 text-center">
+      <h1 class="text-4xl font-extrabold text-gray-900 mb-3">What's Happening Each Day</h1>
+      <p class="text-lg text-gray-500 max-w-2xl mx-auto">
+        Discover Habesha cultural events, concerts, community gatherings, and celebrations across the United States — organized by day.
+      </p>
+    </section>
+
+    <!-- Create event panel (auth only) -->
+    <section id="create-panel" class="hidden mb-8">
+      <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-gray-900">Post a New Event</h2>
+          <button id="toggle-create" class="btn-outline text-sm">Toggle Form</button>
+        </div>
+        <form id="create-event-form" class="hidden grid gap-4 md:grid-cols-2">
+          <input name="title" placeholder="Event Title *" required class="border rounded-lg px-3 py-2 text-sm">
+          <input name="city" placeholder="City *" required class="border rounded-lg px-3 py-2 text-sm">
+          <select name="state" required class="border rounded-lg px-3 py-2 text-sm"></select>
+          <input name="venue" placeholder="Venue" class="border rounded-lg px-3 py-2 text-sm">
+          <input name="event_date" type="date" required class="border rounded-lg px-3 py-2 text-sm">
+          <div class="flex gap-2">
+            <input name="start_time" type="time" class="border rounded-lg px-3 py-2 text-sm flex-1">
+            <input name="end_time" type="time" class="border rounded-lg px-3 py-2 text-sm flex-1">
+          </div>
+          <input name="contact_email" type="email" placeholder="Contact Email" class="border rounded-lg px-3 py-2 text-sm">
+          <input name="contact_phone" type="tel" placeholder="Contact Phone" class="border rounded-lg px-3 py-2 text-sm">
+          <textarea name="description" placeholder="Event Description *" required rows="3" class="border rounded-lg px-3 py-2 text-sm md:col-span-2"></textarea>
+          <button type="submit" class="btn-primary md:col-span-2">Submit for Approval</button>
+        </form>
+        <p id="create-message" class="text-sm mt-3"></p>
+        <p class="text-xs text-gray-400 mt-2">New listings are reviewed by an admin before appearing publicly.</p>
+      </div>
+    </section>
+
+    <!-- Daily events -->
+    <div id="events-container"></div>
+  </main>
+
+  <footer class="border-t border-gray-200 bg-white mt-12">
+    <div class="max-w-6xl mx-auto px-4 py-6 text-center text-sm text-gray-400">
+      &copy; 2026 Habesha Events USA. Celebrating culture across America.
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
