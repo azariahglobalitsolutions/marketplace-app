@@ -24,6 +24,8 @@ python app.py
 - **Build command:** `pip install -r requirements.txt`
 - **Start command:** `gunicorn app:app --bind 0.0.0.0:$PORT`
 
+If Render uses the default `gunicorn your_application.wsgi` command, this repo also includes `your_application/wsgi.py` so that command works too.
+
 ## API endpoints
 
 - `GET /` — API status
