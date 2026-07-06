@@ -65,8 +65,31 @@ Change this password in production.
 
 ## Render Deployment
 
-- **Build:** `npm install`
-- **Start:** `node server.js`
+**Important:** This is a **Node.js** app. Do NOT use Python settings.
+
+In your Render Web Service dashboard, set:
+
+| Setting | Value |
+|---------|--------|
+| **Environment** | `Node` |
+| **Branch** | `main` |
+| **Build Command** | `npm install` |
+| **Start Command** | `npm start` |
+
+**Remove** any old Python commands like:
+- `pip install -r requirements.txt` ❌
+- `gunicorn your_application.wsgi` ❌
+
+### Environment Variables
+
+| Name of Variable | Value |
+|------------------|-------|
+| `JWT_SECRET` | A long random secret string |
+| `NODE_ENV` | `production` |
+
+Then click **Manual Deploy → Deploy latest commit**.
+
+Live URL example: `https://marketplace-app-welz.onrender.com`
 
 ## Project Structure
 
