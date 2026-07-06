@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 
 load_dotenv()
 
@@ -11,12 +11,15 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key")
 
 @app.get("/")
 def home():
-    return jsonify(
-        {
-            "message": "Marketplace API is running",
-            "status": "ok",
-        }
+    return render_template(
+        "index.html",
+        environment=os.getenv("FLASK_ENV", "production"),
     )
+
+
+@app.get("/login")
+def login_page():
+    return render_template("login.html")
 
 
 @app.get("/health")

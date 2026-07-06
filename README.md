@@ -28,6 +28,7 @@ If Render uses the default `gunicorn your_application.wsgi` command, this repo a
 
 ## API endpoints
 
-- `GET /` — API status
+- `GET /` — Home page
+- `GET /login` — Login page
 - `GET /health` — Health check
-- `POST /api/login` — Login endpoint
+- `POST /api/login` — Login API
