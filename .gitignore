@@ -3,7 +3,7 @@ node_modules/
 data/
 *.db
 .DS_Store
-npm-debug.log*
 __pycache__/
 *.pyc
-your_application/
+.venv/
+venv/

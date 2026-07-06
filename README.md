@@ -5,26 +5,26 @@ Eventbrite-style web application for listing Habesha cultural events across the 
 ## Tech Stack
 
 - **Frontend:** HTML5, Tailwind CSS, JavaScript
-- **Backend:** Node.js + Express
+- **Backend:** Python + Flask
 - **Database:** SQLite (modular config for future PostgreSQL migration)
-- **Analytics:** prom-client (Prometheus metrics at `/metrics`)
+- **Analytics:** prometheus-client (metrics at `/metrics`)
 
 ## Quick Start
 
 ```bash
 cp .env.example .env
-npm install
-npm start
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python app.py
 ```
 
-Open `http://localhost:3000`
+Open `http://localhost:5000`
 
 ## Default Admin Account
 
 - **Email:** `admin@habeshaevents.com`
 - **Password:** `admin123`
-
-Change this password in production.
 
 ## Pages
 
@@ -58,43 +58,32 @@ Change this password in production.
 
 | Name | Description |
 |------|-------------|
-| `PORT` | Server port (default: 3000) |
+| `PORT` | Server port (default: 5000) |
 | `JWT_SECRET` | Secret for JWT tokens |
 | `DATABASE_PATH` | SQLite file path |
-| `NODE_ENV` | `development` or `production` |
+| `FLASK_ENV` | `development` or `production` |
 
-## Render Deployment
-
-**Important:** This is a **Node.js** app. Do NOT use Python settings.
-
-In your Render Web Service dashboard, set:
+## Render Deployment (Python)
 
 | Setting | Value |
 |---------|--------|
-| **Environment** | `Node` |
+| **Environment** | `Python` |
+| **Build Command** | `pip install -r requirements.txt` |
+| **Start Command** | `gunicorn wsgi:app --bind 0.0.0.0:$PORT` |
 | **Branch** | `main` |
-| **Build Command** | `npm install` |
-| **Start Command** | `npm start` |
 
-**Remove** any old Python commands like:
-- `pip install -r requirements.txt` ❌
-- `gunicorn your_application.wsgi` ❌
-
-### Environment Variables
+### Environment Variables on Render
 
 | Name of Variable | Value |
 |------------------|-------|
 | `JWT_SECRET` | A long random secret string |
-| `NODE_ENV` | `production` |
-
-Then click **Manual Deploy → Deploy latest commit**.
-
-Live URL example: `https://marketplace-app-welz.onrender.com`
 
 ## Project Structure
 
 ```
-├── server.js
+├── app.py
+├── wsgi.py
+├── requirements.txt
 ├── public/
 │   ├── index.html
 │   ├── login.html
@@ -102,7 +91,7 @@ Live URL example: `https://marketplace-app-welz.onrender.com`
 │   ├── advertise.html
 │   └── js/
 ├── src/
-│   ├── config/db.js
+│   ├── config/db.py
 │   ├── middleware/
 │   └── routes/
 └── data/          (SQLite DB, gitignored)
