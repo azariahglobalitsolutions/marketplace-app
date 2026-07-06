@@ -3,7 +3,7 @@ services:
     name: habesha-events-usa
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn wsgi:app --bind 0.0.0.0:$PORT
+    startCommand: gunicorn your_application.wsgi --bind 0.0.0.0:$PORT
     envVars:
       - key: JWT_SECRET
         generateValue: true
