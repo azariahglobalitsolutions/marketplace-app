@@ -2,6 +2,7 @@ from flask import Blueprint, g, jsonify, request
 
 from src.config.db import CATEGORIES, query_all, query_get, query_run
 from src.middleware.auth import authenticate, optional_auth
+from src.utils.uploads import ALLOWED_ATTACHMENTS, ALLOWED_IMAGES, save_upload
 
 listings_bp = Blueprint("listings", __name__)
 
@@ -29,6 +30,10 @@ def format_listing(row, include_contact=False):
         "event_date": row["event_date"],
         "start_time": row["start_time"],
         "end_time": row["end_time"],
+        "image_url": row.get("image_url"),
+        "logo_url": row.get("logo_url"),
+        "attachment_url": row.get("attachment_url"),
+        "attachment_name": row.get("attachment_name"),
         "status": row["status"],
         "created_at": row["created_at"],
     }
@@ -36,6 +41,12 @@ def format_listing(row, include_contact=False):
         listing["contact_email"] = row.get("contact_email")
         listing["contact_phone"] = row.get("contact_phone")
     return listing
+
+
+def _parse_form_data():
+    if request.content_type and "multipart/form-data" in request.content_type:
+        return request.form.to_dict()
+    return request.get_json(silent=True) or {}
 
 
 @listings_bp.get("/categories")
@@ -120,16 +131,16 @@ def get_listing(listing_id):
 @listings_bp.post("/", strict_slashes=False)
 @authenticate
 def create_listing():
-    data = request.get_json(silent=True) or {}
+    data = _parse_form_data()
     category = data.get("category", "events")
     title = data.get("title")
     description = data.get("description")
     state = data.get("state")
     city = data.get("city")
     venue = data.get("venue")
-    event_date = data.get("event_date")
-    start_time = data.get("start_time")
-    end_time = data.get("end_time")
+    event_date = data.get("event_date") or None
+    start_time = data.get("start_time") or None
+    end_time = data.get("end_time") or None
     contact_email = data.get("contact_email") or g.user.get("email")
     contact_phone = data.get("contact_phone") or g.user.get("phone")
 
@@ -145,14 +156,25 @@ def create_listing():
     if state not in US_STATES:
         return jsonify({"error": "Invalid US state"}), 400
 
+    try:
+        image_url, _ = save_upload(request.files.get("picture"), ALLOWED_IMAGES, "picture")
+        logo_url, _ = save_upload(request.files.get("logo"), ALLOWED_IMAGES, "logo")
+        attachment_url, attachment_name = save_upload(
+            request.files.get("attachment"), ALLOWED_ATTACHMENTS, "attachment"
+        )
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+
     listing_id = query_run(
         """INSERT INTO listings (
           category, title, description, state, city, venue, event_date,
-          start_time, end_time, organizer_id, contact_email, contact_phone, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')""",
+          start_time, end_time, organizer_id, contact_email, contact_phone,
+          image_url, logo_url, attachment_url, attachment_name, status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')""",
         (
             category, title, description, state, city, venue, event_date,
             start_time, end_time, g.user["id"], contact_email, contact_phone,
+            image_url, logo_url, attachment_url, attachment_name,
         ),
     )
 

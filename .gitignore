@@ -7,3 +7,5 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+public/uploads/*
+!public/uploads/.gitkeep

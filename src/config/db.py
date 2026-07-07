@@ -76,6 +76,10 @@ def init_schema():
               organizer_id INTEGER NOT NULL,
               contact_email TEXT,
               contact_phone TEXT,
+              image_url TEXT,
+              logo_url TEXT,
+              attachment_url TEXT,
+              attachment_name TEXT,
               status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'approved', 'rejected')),
               created_at TEXT NOT NULL DEFAULT (datetime('now')),
               FOREIGN KEY (organizer_id) REFERENCES users(id)
@@ -97,6 +101,21 @@ def init_schema():
             CREATE INDEX IF NOT EXISTS idx_listings_status ON listings(status);
             """
         )
+
+
+def migrate_listing_media_columns():
+    columns = {
+        "image_url": "TEXT",
+        "logo_url": "TEXT",
+        "attachment_url": "TEXT",
+        "attachment_name": "TEXT",
+    }
+    with get_connection() as conn:
+        existing = {row[1] for row in conn.execute("PRAGMA table_info(listings)").fetchall()}
+        for name, col_type in columns.items():
+            if name not in existing:
+                conn.execute(f"ALTER TABLE listings ADD COLUMN {name} {col_type}")
+        conn.commit()
 
 
 def migrate_events_to_listings():
@@ -179,6 +198,7 @@ def seed_sample_listings():
 
 
 init_schema()
+migrate_listing_media_columns()
 migrate_events_to_listings()
 seed_admin()
 seed_sample_listings()

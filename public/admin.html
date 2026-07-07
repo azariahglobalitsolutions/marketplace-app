@@ -82,10 +82,13 @@
         list.innerHTML = items.map((e) => `
           <div class="glass-panel rounded-xl border border-gray-200 p-5 shadow-sm" id="event-${e.id}">
             <div class="flex flex-wrap items-start justify-between gap-3">
-              <div>
+              <div class="flex-1">
+                ${e.image_url ? `<img src="${e.image_url}" alt="" class="w-full max-w-xs h-32 object-cover rounded-lg mb-3">` : ""}
                 <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-medium">${e.category_label || e.category}</span>
                 <h3 class="font-bold text-gray-900 text-lg mt-1">${e.title}</h3>
                 <p class="text-sm text-amber-700">${e.city}, ${e.state}${e.event_date ? ` · ${e.event_date}` : ""}</p>
+                ${e.logo_url ? `<img src="${e.logo_url}" alt="Logo" class="h-8 mt-2 object-contain">` : ""}
+                ${e.attachment_url ? `<p class="text-xs text-gray-500 mt-1">📎 ${e.attachment_name || "Attachment included"}</p>` : ""}
                 <p class="text-sm text-gray-500 mt-1">${e.description}</p>
                 <p class="text-xs text-gray-400 mt-2">Organizer: ${e.organizer_email || e.organizer_phone || "N/A"}</p>
               </div>

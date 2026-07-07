@@ -1,7 +1,13 @@
 const API_BASE = "";
 
 async function apiRequest(path, options = {}) {
-  const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+  const isFormData = options.body instanceof FormData;
+  const headers = { ...(options.headers || {}) };
+
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
+
   const token = localStorage.getItem("token");
   if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -18,4 +24,5 @@ async function apiRequest(path, options = {}) {
 window.api = {
   get: (path) => apiRequest(path),
   post: (path, body) => apiRequest(path, { method: "POST", body: JSON.stringify(body) }),
+  postForm: (path, formData) => apiRequest(path, { method: "POST", body: formData }),
 };

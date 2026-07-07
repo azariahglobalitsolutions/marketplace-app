@@ -74,7 +74,7 @@
           <h2 id="create-heading" class="text-lg font-bold text-gray-900">Post a New Listing</h2>
           <button id="toggle-create" class="btn-outline text-sm">Toggle Form</button>
         </div>
-        <form id="create-listing-form" class="hidden grid gap-4 md:grid-cols-2">
+        <form id="create-listing-form" class="hidden grid gap-4 md:grid-cols-2" enctype="multipart/form-data">
           <input name="title" placeholder="Title *" required class="border rounded-lg px-3 py-2 text-sm md:col-span-2">
           <input name="city" placeholder="City *" required class="border rounded-lg px-3 py-2 text-sm">
           <select name="state" required class="border rounded-lg px-3 py-2 text-sm"></select>
@@ -87,6 +87,28 @@
           <input name="contact_email" type="email" placeholder="Contact Email" class="border rounded-lg px-3 py-2 text-sm">
           <input name="contact_phone" type="tel" placeholder="Contact Phone" class="border rounded-lg px-3 py-2 text-sm">
           <textarea name="description" placeholder="Description *" required rows="3" class="border rounded-lg px-3 py-2 text-sm md:col-span-2"></textarea>
+
+          <div class="md:col-span-2 border-t border-gray-200 pt-4 grid gap-4 md:grid-cols-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Listing Picture</label>
+              <input name="picture" type="file" accept="image/jpeg,image/png,image/gif,image/webp" class="text-sm w-full">
+              <p class="text-xs text-gray-400 mt-1">JPG, PNG, GIF, WEBP · max 5 MB</p>
+              <img id="preview-picture" class="hidden mt-2 w-full h-24 object-cover rounded-lg border" alt="Picture preview">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Logo</label>
+              <input name="logo" type="file" accept="image/jpeg,image/png,image/gif,image/webp" class="text-sm w-full">
+              <p class="text-xs text-gray-400 mt-1">Business or event logo</p>
+              <img id="preview-logo" class="hidden mt-2 w-full h-24 object-contain rounded-lg border bg-white" alt="Logo preview">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Attachment</label>
+              <input name="attachment" type="file" accept="image/*,.pdf,.doc,.docx" class="text-sm w-full">
+              <p class="text-xs text-gray-400 mt-1">PDF, DOC, or image · max 5 MB</p>
+              <p id="preview-attachment" class="hidden mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded border"></p>
+            </div>
+          </div>
+
           <button type="submit" class="btn-primary md:col-span-2">Submit for Approval</button>
         </form>
         <p id="create-message" class="text-sm mt-3"></p>

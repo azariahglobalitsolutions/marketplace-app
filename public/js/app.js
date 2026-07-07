@@ -74,10 +74,24 @@ function renderListingCard(listing) {
     ? `<span class="text-xs bg-amber-50 text-amber-800 px-2 py-1 rounded-full whitespace-nowrap">${formatTime(listing.start_time)}${listing.end_time ? ` – ${formatTime(listing.end_time)}` : ""}</span>`
     : "";
 
+  const imageBlock = listing.image_url
+    ? `<img src="${listing.image_url}" alt="${listing.title}" class="w-full h-40 object-cover rounded-lg mb-3">`
+    : "";
+
+  const logoBlock = listing.logo_url
+    ? `<img src="${listing.logo_url}" alt="Logo" class="h-10 w-auto object-contain mb-2">`
+    : "";
+
+  const attachmentBlock = listing.attachment_url
+    ? `<a href="${listing.attachment_url}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-sm text-amber-700 hover:underline mt-2">📎 ${listing.attachment_name || "View attachment"}</a>`
+    : "";
+
   return `
     <article class="glass-panel rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition">
+      ${imageBlock}
       <div class="flex items-start justify-between gap-3">
-        <div>
+        <div class="flex-1">
+          ${logoBlock}
           <h3 class="text-lg font-bold text-gray-900">${listing.title}</h3>
           <p class="text-sm text-amber-700 font-medium">${listing.city}, ${listing.state}</p>
         </div>
@@ -85,6 +99,7 @@ function renderListingCard(listing) {
       </div>
       ${listing.venue ? `<p class="text-sm text-gray-500 mt-1">📍 ${listing.venue}</p>` : ""}
       <p class="text-gray-600 mt-3 text-sm leading-relaxed">${listing.description}</p>
+      ${attachmentBlock}
       ${contact}
     </article>
   `;
@@ -190,6 +205,45 @@ function updateCreateForm() {
     `Post a New ${CATEGORIES[activeCategory].label} Listing`;
 }
 
+function setupFilePreviews() {
+  const pictureInput = document.querySelector('[name="picture"]');
+  const logoInput = document.querySelector('[name="logo"]');
+  const attachmentInput = document.querySelector('[name="attachment"]');
+
+  pictureInput?.addEventListener("change", (e) => {
+    const preview = document.getElementById("preview-picture");
+    const file = e.target.files[0];
+    if (file) {
+      preview.src = URL.createObjectURL(file);
+      preview.classList.remove("hidden");
+    } else {
+      preview.classList.add("hidden");
+    }
+  });
+
+  logoInput?.addEventListener("change", (e) => {
+    const preview = document.getElementById("preview-logo");
+    const file = e.target.files[0];
+    if (file) {
+      preview.src = URL.createObjectURL(file);
+      preview.classList.remove("hidden");
+    } else {
+      preview.classList.add("hidden");
+    }
+  });
+
+  attachmentInput?.addEventListener("change", (e) => {
+    const preview = document.getElementById("preview-attachment");
+    const file = e.target.files[0];
+    if (file) {
+      preview.textContent = `Selected: ${file.name}`;
+      preview.classList.remove("hidden");
+    } else {
+      preview.classList.add("hidden");
+    }
+  });
+}
+
 function setupCreateForm() {
   const form = document.getElementById("create-listing-form");
   const panel = document.getElementById("create-panel");
@@ -208,6 +262,7 @@ function setupCreateForm() {
   stateSelect.innerHTML = US_STATES.map((s) => `<option value="${s}">${s}</option>`).join("");
 
   updateCreateForm();
+  setupFilePreviews();
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -215,14 +270,16 @@ function setupCreateForm() {
     message.textContent = "Submitting...";
 
     const formData = new FormData(form);
-    const body = Object.fromEntries(formData.entries());
-    body.category = activeCategory;
+    formData.set("category", activeCategory);
 
     try {
-      const data = await api.post("/api/listings", body);
+      const data = await api.postForm("/api/listings", formData);
       message.className = "text-sm mt-3 text-green-600";
       message.textContent = data.message;
       form.reset();
+      document.getElementById("preview-picture").classList.add("hidden");
+      document.getElementById("preview-logo").classList.add("hidden");
+      document.getElementById("preview-attachment").classList.add("hidden");
     } catch (err) {
       message.className = "text-sm mt-3 text-red-600";
       message.textContent = err.message;
