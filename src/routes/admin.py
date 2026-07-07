@@ -1,49 +1,53 @@
 from flask import Blueprint, jsonify
 
-from src.config.db import query_all, query_get, query_run
+from src.config.db import CATEGORIES, query_all, query_get, query_run
 from src.middleware.auth import authenticate, require_admin
 
 admin_bp = Blueprint("admin", __name__)
+
+CATEGORY_LABELS = CATEGORIES
 
 
 @admin_bp.get("/pending")
 @authenticate
 @require_admin
-def pending_events():
+def pending_listings():
     rows = query_all(
-        """SELECT e.*, u.email AS organizer_email, u.phone AS organizer_phone
-           FROM events e
-           JOIN users u ON u.id = e.organizer_id
-           WHERE e.status = 'pending'
-           ORDER BY e.created_at ASC"""
+        """SELECT l.*, u.email AS organizer_email, u.phone AS organizer_phone
+           FROM listings l
+           JOIN users u ON u.id = l.organizer_id
+           WHERE l.status = 'pending'
+           ORDER BY l.created_at ASC"""
     )
-    return jsonify({"events": rows})
+    for row in rows:
+        row["category_label"] = CATEGORY_LABELS.get(row["category"], row["category"])
+    return jsonify({"listings": rows, "events": rows})
 
 
-@admin_bp.post("/<int:event_id>/approve")
+@admin_bp.post("/<int:listing_id>/approve")
 @authenticate
 @require_admin
-def approve_event(event_id):
-    event = query_get("SELECT * FROM events WHERE id = ?", (event_id,))
-    if not event:
-        return jsonify({"error": "Event not found"}), 404
+def approve_listing(listing_id):
+    listing = query_get("SELECT * FROM listings WHERE id = ?", (listing_id,))
+    if not listing:
+        return jsonify({"error": "Listing not found"}), 404
 
-    query_run("UPDATE events SET status = 'approved' WHERE id = ?", (event_id,))
-    updated = query_get("SELECT * FROM events WHERE id = ?", (event_id,))
-    return jsonify({"message": "Event approved", "event": updated})
+    query_run("UPDATE listings SET status = 'approved' WHERE id = ?", (listing_id,))
+    updated = query_get("SELECT * FROM listings WHERE id = ?", (listing_id,))
+    return jsonify({"message": "Listing approved", "listing": updated, "event": updated})
 
 
-@admin_bp.post("/<int:event_id>/reject")
+@admin_bp.post("/<int:listing_id>/reject")
 @authenticate
 @require_admin
-def reject_event(event_id):
-    event = query_get("SELECT * FROM events WHERE id = ?", (event_id,))
-    if not event:
-        return jsonify({"error": "Event not found"}), 404
+def reject_listing(listing_id):
+    listing = query_get("SELECT * FROM listings WHERE id = ?", (listing_id,))
+    if not listing:
+        return jsonify({"error": "Listing not found"}), 404
 
-    query_run("UPDATE events SET status = 'rejected' WHERE id = ?", (event_id,))
-    updated = query_get("SELECT * FROM events WHERE id = ?", (event_id,))
-    return jsonify({"message": "Event rejected", "event": updated})
+    query_run("UPDATE listings SET status = 'rejected' WHERE id = ?", (listing_id,))
+    updated = query_get("SELECT * FROM listings WHERE id = ?", (listing_id,))
+    return jsonify({"message": "Listing rejected", "listing": updated, "event": updated})
 
 
 @admin_bp.get("/ad-inquiries")

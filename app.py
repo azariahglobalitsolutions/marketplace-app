@@ -9,6 +9,7 @@ from src.routes.admin import admin_bp
 from src.routes.advertise import advertise_bp
 from src.routes.auth import auth_bp
 from src.routes.events import events_bp
+from src.routes.listings import listings_bp
 
 load_dotenv()
 
@@ -38,10 +39,12 @@ def create_app():
         return send_from_directory(PUBLIC_DIR, "advertise.html")
 
     @app.get("/admin/moderation")
+    @app.get("/admin.html")
     def admin_moderation():
         return send_from_directory(PUBLIC_DIR, "admin.html")
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
+    app.register_blueprint(listings_bp, url_prefix="/api/listings")
     app.register_blueprint(events_bp, url_prefix="/api/events")
     app.register_blueprint(admin_bp, url_prefix="/api/admin")
     app.register_blueprint(advertise_bp, url_prefix="/api/advertise")

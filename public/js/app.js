@@ -9,15 +9,47 @@ const US_STATES = [
   "Wisconsin","Wyoming",
 ];
 
+const CATEGORIES = {
+  events: {
+    label: "Habesha Event & Activities",
+    heroTitle: "What's Happening Each Day",
+    heroSubtitle: "Discover Habesha cultural events, concerts, and community gatherings across the United States — organized by day.",
+    empty: "No events found",
+  },
+  restaurants: {
+    label: "Restaurants and Lounge",
+    heroTitle: "Habesha Restaurants & Lounges",
+    heroSubtitle: "Find authentic Ethiopian and Eritrean dining, coffee ceremonies, and lounge experiences near you.",
+    empty: "No restaurants found",
+  },
+  health: {
+    label: "Health and Wellness",
+    heroTitle: "Health & Wellness",
+    heroSubtitle: "Connect with clinics, counselors, and wellness providers serving the Habesha community.",
+    empty: "No health listings found",
+  },
+  education: {
+    label: "Education and Training",
+    heroTitle: "Education & Training",
+    heroSubtitle: "Language schools, tutoring, tech training, and professional development for our community.",
+    empty: "No education listings found",
+  },
+  communities: {
+    label: "Communities and Networking",
+    heroTitle: "Communities & Networking",
+    heroSubtitle: "Professional networks, support groups, and community organizations across the USA.",
+    empty: "No community listings found",
+  },
+};
+
 let selectedState = localStorage.getItem("selectedState") || "";
+let activeCategory = localStorage.getItem("activeCategory") || "events";
 
 function formatDate(dateStr) {
+  if (!dateStr || dateStr === "Unscheduled") return dateStr;
   const date = new Date(dateStr + "T00:00:00");
   return date.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
+    weekday: "long", month: "long", day: "numeric", year: "numeric",
   });
 }
 
@@ -26,76 +58,111 @@ function formatTime(time) {
   const [h, m] = time.split(":");
   const hour = parseInt(h, 10);
   const ampm = hour >= 12 ? "PM" : "AM";
-  const display = hour % 12 || 12;
-  return `${display}:${m} ${ampm}`;
+  return `${hour % 12 || 12}:${m} ${ampm}`;
 }
 
-function renderEventCard(event) {
+function renderListingCard(listing) {
   const contact = auth.isLoggedIn()
     ? `<div class="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
-         <p class="font-medium text-gray-800">Organizer Contact</p>
-         ${event.contact_email ? `<p>Email: <a href="mailto:${event.contact_email}" class="text-amber-700">${event.contact_email}</a></p>` : ""}
-         ${event.contact_phone ? `<p>Phone: <a href="tel:${event.contact_phone}" class="text-amber-700">${event.contact_phone}</a></p>` : ""}
+         <p class="font-medium text-gray-800">Contact</p>
+         ${listing.contact_email ? `<p>Email: <a href="mailto:${listing.contact_email}" class="text-amber-700">${listing.contact_email}</a></p>` : ""}
+         ${listing.contact_phone ? `<p>Phone: <a href="tel:${listing.contact_phone}" class="text-amber-700">${listing.contact_phone}</a></p>` : ""}
        </div>`
-    : `<p class="mt-3 text-sm text-amber-700"><a href="/login.html" class="underline">Sign in</a> to view organizer contact details</p>`;
+    : `<p class="mt-3 text-sm text-amber-700"><a href="/login.html" class="underline">Sign in</a> to view contact details</p>`;
+
+  const timeBadge = listing.start_time
+    ? `<span class="text-xs bg-amber-50 text-amber-800 px-2 py-1 rounded-full whitespace-nowrap">${formatTime(listing.start_time)}${listing.end_time ? ` – ${formatTime(listing.end_time)}` : ""}</span>`
+    : "";
 
   return `
     <article class="glass-panel rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition">
       <div class="flex items-start justify-between gap-3">
         <div>
-          <h3 class="text-lg font-bold text-gray-900">${event.title}</h3>
-          <p class="text-sm text-amber-700 font-medium">${event.city}, ${event.state}</p>
+          <h3 class="text-lg font-bold text-gray-900">${listing.title}</h3>
+          <p class="text-sm text-amber-700 font-medium">${listing.city}, ${listing.state}</p>
         </div>
-        <span class="text-xs bg-amber-50 text-amber-800 px-2 py-1 rounded-full whitespace-nowrap">
-          ${formatTime(event.start_time)}${event.end_time ? ` – ${formatTime(event.end_time)}` : ""}
-        </span>
+        ${timeBadge}
       </div>
-      ${event.venue ? `<p class="text-sm text-gray-500 mt-1">📍 ${event.venue}</p>` : ""}
-      <p class="text-gray-600 mt-3 text-sm leading-relaxed">${event.description}</p>
+      ${listing.venue ? `<p class="text-sm text-gray-500 mt-1">📍 ${listing.venue}</p>` : ""}
+      <p class="text-gray-600 mt-3 text-sm leading-relaxed">${listing.description}</p>
       ${contact}
     </article>
   `;
 }
 
-function renderEvents(grouped) {
-  const container = document.getElementById("events-container");
-  const dates = Object.keys(grouped).sort();
+function renderListings(grouped) {
+  const container = document.getElementById("listings-container");
+  const meta = CATEGORIES[activeCategory];
+  const keys = Object.keys(grouped);
 
-  if (dates.length === 0) {
+  if (keys.length === 0 || (keys.length === 1 && grouped[keys[0]]?.length === 0)) {
     container.innerHTML = `
-      <div class="text-center py-16">
-        <p class="text-xl text-gray-500">No events found${selectedState ? ` in ${selectedState}` : ""}.</p>
+      <div class="text-center py-16 glass-panel rounded-xl">
+        <p class="text-xl text-gray-500">${meta.empty}${selectedState ? ` in ${selectedState}` : ""}.</p>
         <p class="text-gray-400 mt-2">Check back soon or try another state.</p>
       </div>`;
     return;
   }
 
-  container.innerHTML = dates.map((date) => `
-    <section class="mb-10">
-      <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <span class="w-2 h-8 bg-amber-500 rounded-full"></span>
-        ${formatDate(date)}
-      </h2>
-      <div class="grid gap-4 md:grid-cols-2">
-        ${grouped[date].map(renderEventCard).join("")}
-      </div>
-    </section>
-  `).join("");
+  if (activeCategory === "events") {
+    const dates = keys.filter((k) => grouped[k]?.length).sort();
+    container.innerHTML = dates.map((date) => `
+      <section class="mb-10">
+        <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2 drop-shadow">
+          <span class="w-2 h-8 bg-amber-500 rounded-full"></span>
+          ${formatDate(date)}
+        </h2>
+        <div class="grid gap-4 md:grid-cols-2">
+          ${grouped[date].map(renderListingCard).join("")}
+        </div>
+      </section>
+    `).join("");
+  } else {
+    const items = grouped.all || [];
+    container.innerHTML = `
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        ${items.map(renderListingCard).join("")}
+      </div>`;
+  }
 }
 
-async function loadEvents() {
-  const container = document.getElementById("events-container");
-  container.innerHTML = `<p class="text-center text-gray-400 py-12">Loading events...</p>`;
+async function loadListings() {
+  const container = document.getElementById("listings-container");
+  container.innerHTML = `<p class="text-center text-gray-300 py-12">Loading listings...</p>`;
 
   try {
-    const query = selectedState ? `?state=${encodeURIComponent(selectedState)}` : "";
-    const data = await api.get(`/api/events${query}`);
-    renderEvents(data.grouped);
-    document.getElementById("event-count").textContent = data.events.length;
+    const params = new URLSearchParams({ category: activeCategory });
+    if (selectedState) params.set("state", selectedState);
+
+    const data = await api.get(`/api/listings?${params}`);
+    renderListings(data.grouped);
+    document.getElementById("listing-count").textContent = data.listings.length;
     document.getElementById("filter-label").textContent = selectedState || "All States";
   } catch (err) {
-    container.innerHTML = `<p class="text-center text-red-500 py-12">${err.message}</p>`;
+    container.innerHTML = `<p class="text-center text-red-400 py-12">${err.message}</p>`;
   }
+}
+
+function updateHero() {
+  const meta = CATEGORIES[activeCategory];
+  document.getElementById("hero-title").textContent = meta.heroTitle;
+  document.getElementById("hero-subtitle").textContent = meta.heroSubtitle;
+}
+
+function setupCategoryTabs() {
+  document.querySelectorAll(".category-tab").forEach((tab) => {
+    tab.classList.toggle("active", tab.dataset.category === activeCategory);
+    tab.addEventListener("click", () => {
+      activeCategory = tab.dataset.category;
+      localStorage.setItem("activeCategory", activeCategory);
+      document.querySelectorAll(".category-tab").forEach((t) =>
+        t.classList.toggle("active", t.dataset.category === activeCategory)
+      );
+      updateHero();
+      updateCreateForm();
+      loadListings();
+    });
+  });
 }
 
 function setupStateFilter() {
@@ -105,17 +172,26 @@ function setupStateFilter() {
 
   select.addEventListener("change", (e) => {
     selectedState = e.target.value;
-    if (selectedState) {
-      localStorage.setItem("selectedState", selectedState);
-    } else {
-      localStorage.removeItem("selectedState");
-    }
-    loadEvents();
+    if (selectedState) localStorage.setItem("selectedState", selectedState);
+    else localStorage.removeItem("selectedState");
+    loadListings();
   });
 }
 
+function updateCreateForm() {
+  const dateFields = document.getElementById("event-date-fields");
+  const dateInput = document.querySelector('[name="event_date"]');
+  const isEvent = activeCategory === "events";
+
+  dateFields.classList.toggle("hidden", !isEvent);
+  dateInput.required = isEvent;
+
+  document.getElementById("create-heading").textContent =
+    `Post a New ${CATEGORIES[activeCategory].label} Listing`;
+}
+
 function setupCreateForm() {
-  const form = document.getElementById("create-event-form");
+  const form = document.getElementById("create-listing-form");
   const panel = document.getElementById("create-panel");
   const toggle = document.getElementById("toggle-create");
   const message = document.getElementById("create-message");
@@ -131,6 +207,8 @@ function setupCreateForm() {
   const stateSelect = form.querySelector('[name="state"]');
   stateSelect.innerHTML = US_STATES.map((s) => `<option value="${s}">${s}</option>`).join("");
 
+  updateCreateForm();
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     message.className = "text-sm mt-3";
@@ -138,9 +216,10 @@ function setupCreateForm() {
 
     const formData = new FormData(form);
     const body = Object.fromEntries(formData.entries());
+    body.category = activeCategory;
 
     try {
-      const data = await api.post("/api/events", body);
+      const data = await api.post("/api/listings", body);
       message.className = "text-sm mt-3 text-green-600";
       message.textContent = data.message;
       form.reset();
@@ -152,7 +231,9 @@ function setupCreateForm() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  setupCategoryTabs();
   setupStateFilter();
-  loadEvents();
+  updateHero();
+  loadListings();
   setupCreateForm();
 });

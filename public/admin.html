@@ -13,7 +13,7 @@
     <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
       <div>
         <p class="text-xs text-gray-400 uppercase tracking-wider">Admin Dashboard</p>
-        <h1 class="text-xl font-bold">Event Moderation</h1>
+        <h1 class="text-xl font-bold">Listing Moderation</h1>
       </div>
       <div class="flex items-center gap-4 text-sm">
         <a href="/" class="text-gray-300 hover:text-white">← Public Site</a>
@@ -71,19 +71,21 @@
       list.innerHTML = `<p class="text-gray-400">Loading...</p>`;
       try {
         const data = await api.get("/api/admin/pending");
-        document.getElementById("pending-count").textContent = `${data.events.length} pending`;
+        const items = data.listings || data.events;
+        document.getElementById("pending-count").textContent = `${items.length} pending`;
 
-        if (data.events.length === 0) {
-          list.innerHTML = `<p class="text-gray-400 text-center py-8">No events awaiting approval 🎉</p>`;
+        if (items.length === 0) {
+          list.innerHTML = `<p class="text-gray-400 text-center py-8">No listings awaiting approval 🎉</p>`;
           return;
         }
 
-        list.innerHTML = data.events.map((e) => `
+        list.innerHTML = items.map((e) => `
           <div class="glass-panel rounded-xl border border-gray-200 p-5 shadow-sm" id="event-${e.id}">
             <div class="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h3 class="font-bold text-gray-900 text-lg">${e.title}</h3>
-                <p class="text-sm text-amber-700">${e.city}, ${e.state} · ${e.event_date}</p>
+                <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-medium">${e.category_label || e.category}</span>
+                <h3 class="font-bold text-gray-900 text-lg mt-1">${e.title}</h3>
+                <p class="text-sm text-amber-700">${e.city}, ${e.state}${e.event_date ? ` · ${e.event_date}` : ""}</p>
                 <p class="text-sm text-gray-500 mt-1">${e.description}</p>
                 <p class="text-xs text-gray-400 mt-2">Organizer: ${e.organizer_email || e.organizer_phone || "N/A"}</p>
               </div>

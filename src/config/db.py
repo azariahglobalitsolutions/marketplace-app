@@ -11,6 +11,14 @@ load_dotenv()
 DB_PATH = os.getenv("DATABASE_PATH", str(Path(__file__).resolve().parents[2] / "data" / "events.db"))
 Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
 
+CATEGORIES = {
+    "events": "Habesha Event & Activities",
+    "restaurants": "Restaurants and Lounge",
+    "health": "Health and Wellness",
+    "education": "Education and Training",
+    "communities": "Communities and Networking",
+}
+
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
@@ -52,14 +60,17 @@ def init_schema():
               created_at TEXT NOT NULL DEFAULT (datetime('now'))
             );
 
-            CREATE TABLE IF NOT EXISTS events (
+            CREATE TABLE IF NOT EXISTS listings (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
+              category TEXT NOT NULL CHECK(category IN (
+                'events', 'restaurants', 'health', 'education', 'communities'
+              )),
               title TEXT NOT NULL,
               description TEXT NOT NULL,
               state TEXT NOT NULL,
               city TEXT NOT NULL,
               venue TEXT,
-              event_date TEXT NOT NULL,
+              event_date TEXT,
               start_time TEXT,
               end_time TEXT,
               organizer_id INTEGER NOT NULL,
@@ -80,11 +91,38 @@ def init_schema():
               created_at TEXT NOT NULL DEFAULT (datetime('now'))
             );
 
-            CREATE INDEX IF NOT EXISTS idx_events_state ON events(state);
-            CREATE INDEX IF NOT EXISTS idx_events_date ON events(event_date);
-            CREATE INDEX IF NOT EXISTS idx_events_status ON events(status);
+            CREATE INDEX IF NOT EXISTS idx_listings_category ON listings(category);
+            CREATE INDEX IF NOT EXISTS idx_listings_state ON listings(state);
+            CREATE INDEX IF NOT EXISTS idx_listings_date ON listings(event_date);
+            CREATE INDEX IF NOT EXISTS idx_listings_status ON listings(status);
             """
         )
+
+
+def migrate_events_to_listings():
+    with get_connection() as conn:
+        tables = [r[0] for r in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='events'"
+        ).fetchall()]
+        if not tables:
+            return
+
+        count = conn.execute("SELECT COUNT(*) FROM listings").fetchone()[0]
+        if count > 0:
+            return
+
+        conn.execute(
+            """INSERT INTO listings (
+              category, title, description, state, city, venue, event_date,
+              start_time, end_time, organizer_id, contact_email, contact_phone,
+              status, created_at
+            )
+            SELECT 'events', title, description, state, city, venue, event_date,
+              start_time, end_time, organizer_id, contact_email, contact_phone,
+              status, created_at
+            FROM events"""
+        )
+        conn.commit()
 
 
 def seed_admin():
@@ -99,9 +137,8 @@ def seed_admin():
     )
 
 
-def seed_sample_events():
-    count = query_get("SELECT COUNT(*) AS c FROM events")["c"]
-    if count > 0:
+def seed_sample_listings():
+    if query_get("SELECT COUNT(*) AS c FROM listings")["c"] > 0:
         return
 
     admin = query_get("SELECT id FROM users WHERE role = 'admin' LIMIT 1")
@@ -112,26 +149,36 @@ def seed_sample_events():
     day1 = today.isoformat()
     day2 = (today + timedelta(days=1)).isoformat()
     day3 = (today + timedelta(days=2)).isoformat()
+    oid = admin["id"]
+    contact = "info@wubebereha.com"
 
     samples = [
-        ("Habesha New Year Celebration", "Join us for traditional food, music, and dance celebrating Enkutatash.", "Virginia", "Arlington", "Community Center Hall", day1, "18:00"),
-        ("Ethiopian Coffee Ceremony & Networking", "An afternoon of bunna, conversation, and community connections.", "Maryland", "Silver Spring", "Habesha Cafe", day1, "14:00"),
-        ("Tigrinya Poetry Night", "Local poets share original works in Tigrinya and Amharic.", "Texas", "Dallas", "Cultural Arts Center", day2, "19:30"),
-        ("Eritrean Independence Day Gala", "Annual gala with live bands, cultural performances, and dinner.", "Virginia", "Alexandria", "Grand Ballroom", day2, "17:00"),
-        ("Habesha Sports Tournament", "Soccer and volleyball tournament open to all ages.", "Georgia", "Atlanta", "Piedmont Park", day3, "09:00"),
-        ("Amharic Language Workshop", "Beginner-friendly Amharic language class for kids and adults.", "California", "Los Angeles", "LA Community Library", day3, "11:00"),
+        ("events", "Habesha New Year Celebration", "Traditional food, music, and dance celebrating Enkutatash.", "Virginia", "Arlington", "Community Center Hall", day1, "18:00"),
+        ("events", "Ethiopian Coffee Ceremony", "An afternoon of bunna, conversation, and community connections.", "Maryland", "Silver Spring", "Habesha Cafe", day1, "14:00"),
+        ("events", "Tigrinya Poetry Night", "Local poets share original works in Tigrinya and Amharic.", "Texas", "Dallas", "Cultural Arts Center", day2, "19:30"),
+        ("events", "Eritrean Independence Day Gala", "Annual gala with live bands and cultural performances.", "Virginia", "Alexandria", "Grand Ballroom", day2, "17:00"),
+        ("restaurants", "Habesha Kitchen & Lounge", "Authentic injera, tibs, kitfo, and weekend live music.", "Virginia", "Falls Church", "123 Columbia Pike", None, None),
+        ("restaurants", "Addis Ababa Restaurant", "Family-owned Ethiopian restaurant with vegetarian platters.", "Georgia", "Atlanta", "Buford Highway", None, None),
+        ("restaurants", "Bunna Cafe & Lounge", "Coffee ceremony, pastries, and cozy evening lounge.", "Maryland", "Silver Spring", "Georgia Ave", None, None),
+        ("health", "Habesha Wellness Clinic", "Primary care and preventive health for the Habesha community.", "Virginia", "Arlington", "Wilson Blvd", None, None),
+        ("health", "Selam Mental Health Services", "Counseling and therapy with culturally sensitive providers.", "California", "Los Angeles", "Westwood", None, None),
+        ("education", "Amharic Language School", "Weekend classes for children and adults — all levels.", "Virginia", "Alexandria", "Community Library", day3, "11:00"),
+        ("education", "Habesha Tech Training", "Coding bootcamps and digital skills for newcomers.", "Texas", "Dallas", "Innovation Hub", None, None),
+        ("communities", "DMV Habesha Professionals", "Monthly networking for engineers, nurses, and entrepreneurs.", "Maryland", "Rockville", "Community Center", None, None),
+        ("communities", "Atlanta Habesha Women Network", "Support circle, mentorship, and community service projects.", "Georgia", "Atlanta", "Midtown", None, None),
     ]
 
-    for title, desc, state, city, venue, date, start in samples:
+    for cat, title, desc, state, city, venue, date, start in samples:
         query_run(
-            """INSERT INTO events (
-              title, description, state, city, venue, event_date, start_time,
-              organizer_id, contact_email, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')""",
-            (title, desc, state, city, venue, date, start, admin["id"], "events@habeshaevents.com"),
+            """INSERT INTO listings (
+              category, title, description, state, city, venue, event_date,
+              start_time, organizer_id, contact_email, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')""",
+            (cat, title, desc, state, city, venue, date, start, oid, contact),
         )
 
 
 init_schema()
+migrate_events_to_listings()
 seed_admin()
-seed_sample_events()
+seed_sample_listings()
