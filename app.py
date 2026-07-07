@@ -23,7 +23,7 @@ def create_app():
 
     @app.get("/health")
     def health():
-        return jsonify({"status": "healthy", "service": "habesha-events-usa"})
+        return jsonify({"status": "healthy", "service": "wube-bereha-habesha-events"})
 
     @app.get("/")
     def index():

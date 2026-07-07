@@ -1,4 +1,4 @@
-# Habesha Events USA
+# Wube Bereha ውቤ በረሃ — Habesha Events in USA & Yellow Pages
 
 Eventbrite-style web application for listing Habesha cultural events across the United States.
 
