@@ -206,9 +206,10 @@ def seed_sample_listings():
         query_run(
             """INSERT INTO listings (
               category, title, description, state, city, venue, event_date,
-              start_time, organizer_id, contact_email, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')""",
-            (cat, title, desc, state, city, venue, date, start, oid, contact),
+              start_time, organizer_id, contact_email, contact_phone,
+              contact_phone_country, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'US', 'approved')""",
+            (cat, title, desc, state, city, venue, date, start, oid, contact, contact_phone),
         )
 
 
