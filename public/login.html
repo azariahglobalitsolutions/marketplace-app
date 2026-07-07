@@ -35,7 +35,7 @@
         <form id="login-form" class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Email or Phone</label>
-            <input id="login-identifier" type="text" placeholder="you@email.com or +1 555-0000" required
+            <input id="login-identifier" type="text" placeholder="you@email.com or 240-444-2668" required
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
           </div>
           <div>
@@ -57,8 +57,10 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Phone (optional)</label>
-            <input id="reg-phone" type="tel" placeholder="+1 555-000-0000"
+            <div id="reg-phone-country" class="mb-2"></div>
+            <input id="reg-phone" type="tel" placeholder="240-444-2668"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+            <p class="text-xs text-gray-400 mt-1">US format: +1 240-444-2668 · International supported</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
@@ -83,6 +85,7 @@
   </footer>
 
   <script src="/js/api.js"></script>
+  <script src="/js/phone.js"></script>
   <script src="/js/auth.js"></script>
   <script>
     const tabLogin = document.getElementById("tab-login");
@@ -108,8 +111,28 @@
     tabRegister.addEventListener("click", () => showTab("register"));
 
     function parseIdentifier(value) {
-      return value.includes("@") ? { email: value } : { phone: value };
+      if (value.includes("@")) return { email: value };
+      return { phone: value, phone_country: document.querySelector('[name="login_phone_country"]')?.value || "US" };
     }
+
+    document.getElementById("reg-phone-country").innerHTML =
+      phoneUtils.buildCountrySelect("reg_phone_country", "US");
+    const regCountry = document.querySelector('[name="reg_phone_country"]');
+    const regPhone = document.getElementById("reg-phone");
+    phoneUtils.bindPhoneCountryPlaceholder(regCountry, regPhone);
+
+    const loginCountryWrap = document.createElement("div");
+    loginCountryWrap.id = "login-phone-country-wrap";
+    loginCountryWrap.className = "mb-2 hidden";
+    loginCountryWrap.innerHTML = phoneUtils.buildCountrySelect("login_phone_country", "US");
+    document.getElementById("login-identifier").parentElement.insertBefore(
+      loginCountryWrap,
+      document.getElementById("login-identifier")
+    );
+    document.getElementById("login-identifier").addEventListener("input", (e) => {
+      const isPhone = e.target.value && !e.target.value.includes("@");
+      loginCountryWrap.classList.toggle("hidden", !isPhone);
+    });
 
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -137,6 +160,7 @@
         const data = await api.post("/api/auth/register", {
           email: document.getElementById("reg-email").value || undefined,
           phone: document.getElementById("reg-phone").value || undefined,
+          phone_country: document.querySelector('[name="reg_phone_country"]').value,
           password: document.getElementById("reg-password").value,
         });
         auth.saveSession(data.token, data.user);

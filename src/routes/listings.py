@@ -2,6 +2,7 @@ from flask import Blueprint, g, jsonify, request
 
 from src.config.db import CATEGORIES, query_all, query_get, query_run
 from src.middleware.auth import authenticate, optional_auth
+from src.utils.phone import format_phone_display, normalize_phone, phone_to_tel_link
 from src.utils.uploads import ALLOWED_ATTACHMENTS, ALLOWED_IMAGES, save_upload
 
 listings_bp = Blueprint("listings", __name__)
@@ -34,12 +35,17 @@ def format_listing(row, include_contact=False):
         "logo_url": row.get("logo_url"),
         "attachment_url": row.get("attachment_url"),
         "attachment_name": row.get("attachment_name"),
+        "contact_phone_country": row.get("contact_phone_country") or "US",
         "status": row["status"],
         "created_at": row["created_at"],
     }
     if include_contact:
         listing["contact_email"] = row.get("contact_email")
-        listing["contact_phone"] = row.get("contact_phone")
+        country = row.get("contact_phone_country") or "US"
+        raw_phone = row.get("contact_phone")
+        listing["contact_phone"] = format_phone_display(raw_phone, country)
+        listing["contact_phone_tel"] = phone_to_tel_link(raw_phone, country)
+        listing["contact_phone_country"] = country
     return listing
 
 
@@ -143,6 +149,10 @@ def create_listing():
     end_time = data.get("end_time") or None
     contact_email = data.get("contact_email") or g.user.get("email")
     contact_phone = data.get("contact_phone") or g.user.get("phone")
+    contact_phone_country = data.get("contact_phone_country") or g.user.get("phone_country") or "US"
+
+    if contact_phone:
+        contact_phone = normalize_phone(contact_phone, contact_phone_country)
 
     if category not in CATEGORIES:
         return jsonify({"error": "Invalid category"}), 400
@@ -169,12 +179,12 @@ def create_listing():
         """INSERT INTO listings (
           category, title, description, state, city, venue, event_date,
           start_time, end_time, organizer_id, contact_email, contact_phone,
-          image_url, logo_url, attachment_url, attachment_name, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')""",
+          contact_phone_country, image_url, logo_url, attachment_url, attachment_name, status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')""",
         (
             category, title, description, state, city, venue, event_date,
             start_time, end_time, g.user["id"], contact_email, contact_phone,
-            image_url, logo_url, attachment_url, attachment_name,
+            contact_phone_country, image_url, logo_url, attachment_url, attachment_name,
         ),
     )
 

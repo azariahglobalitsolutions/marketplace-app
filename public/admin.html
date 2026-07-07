@@ -90,7 +90,8 @@
                 ${e.logo_url ? `<img src="${e.logo_url}" alt="Logo" class="h-8 mt-2 object-contain">` : ""}
                 ${e.attachment_url ? `<p class="text-xs text-gray-500 mt-1">📎 ${e.attachment_name || "Attachment included"}</p>` : ""}
                 <p class="text-sm text-gray-500 mt-1">${e.description}</p>
-                <p class="text-xs text-gray-400 mt-2">Organizer: ${e.organizer_email || e.organizer_phone || "N/A"}</p>
+                <p class="text-xs text-gray-400 mt-2">Organizer: ${e.organizer_email || e.organizer_phone_display || e.organizer_phone || "N/A"}</p>
+                ${e.contact_phone_display ? `<p class="text-xs text-gray-500">Contact: ${e.contact_phone_display}</p>` : ""}
               </div>
               <div class="flex gap-2">
                 <button onclick="approveEvent(${e.id})" class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg font-medium">Approve</button>

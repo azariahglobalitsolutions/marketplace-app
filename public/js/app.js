@@ -66,7 +66,7 @@ function renderListingCard(listing) {
     ? `<div class="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
          <p class="font-medium text-gray-800">Contact</p>
          ${listing.contact_email ? `<p>Email: <a href="mailto:${listing.contact_email}" class="text-amber-700">${listing.contact_email}</a></p>` : ""}
-         ${listing.contact_phone ? `<p>Phone: <a href="tel:${listing.contact_phone}" class="text-amber-700">${listing.contact_phone}</a></p>` : ""}
+         ${listing.contact_phone ? `<p>Phone: <a href="tel:${listing.contact_phone_tel || listing.contact_phone}" class="text-amber-700">${listing.contact_phone}</a></p>` : ""}
        </div>`
     : `<p class="mt-3 text-sm text-amber-700"><a href="/login.html" class="underline">Sign in</a> to view contact details</p>`;
 
@@ -260,6 +260,14 @@ function setupCreateForm() {
 
   const stateSelect = form.querySelector('[name="state"]');
   stateSelect.innerHTML = US_STATES.map((s) => `<option value="${s}">${s}</option>`).join("");
+
+  const countryContainer = document.getElementById("contact-phone-country");
+  if (countryContainer) {
+    countryContainer.innerHTML = phoneUtils.buildCountrySelect("contact_phone_country", "US");
+    const countrySelect = form.querySelector('[name="contact_phone_country"]');
+    const phoneInput = form.querySelector('[name="contact_phone"]');
+    phoneUtils.bindPhoneCountryPlaceholder(countrySelect, phoneInput);
+  }
 
   updateCreateForm();
   setupFilePreviews();

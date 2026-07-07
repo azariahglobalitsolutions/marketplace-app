@@ -55,6 +55,7 @@ def init_schema():
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               email TEXT UNIQUE,
               phone TEXT,
+              phone_country TEXT DEFAULT 'US',
               password_hash TEXT NOT NULL,
               role TEXT NOT NULL DEFAULT 'user' CHECK(role IN ('user', 'admin')),
               created_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -76,6 +77,7 @@ def init_schema():
               organizer_id INTEGER NOT NULL,
               contact_email TEXT,
               contact_phone TEXT,
+              contact_phone_country TEXT DEFAULT 'US',
               image_url TEXT,
               logo_url TEXT,
               attachment_url TEXT,
@@ -101,6 +103,18 @@ def init_schema():
             CREATE INDEX IF NOT EXISTS idx_listings_status ON listings(status);
             """
         )
+
+
+def migrate_phone_country_columns():
+    with get_connection() as conn:
+        listing_cols = {row[1] for row in conn.execute("PRAGMA table_info(listings)").fetchall()}
+        if "contact_phone_country" not in listing_cols:
+            conn.execute("ALTER TABLE listings ADD COLUMN contact_phone_country TEXT DEFAULT 'US'")
+
+        user_cols = {row[1] for row in conn.execute("PRAGMA table_info(users)").fetchall()}
+        if "phone_country" not in user_cols:
+            conn.execute("ALTER TABLE users ADD COLUMN phone_country TEXT DEFAULT 'US'")
+        conn.commit()
 
 
 def migrate_listing_media_columns():
@@ -170,6 +184,7 @@ def seed_sample_listings():
     day3 = (today + timedelta(days=2)).isoformat()
     oid = admin["id"]
     contact = "info@wubebereha.com"
+    contact_phone = "+12404442668"
 
     samples = [
         ("events", "Habesha New Year Celebration", "Traditional food, music, and dance celebrating Enkutatash.", "Virginia", "Arlington", "Community Center Hall", day1, "18:00"),
@@ -199,6 +214,7 @@ def seed_sample_listings():
 
 init_schema()
 migrate_listing_media_columns()
+migrate_phone_country_columns()
 migrate_events_to_listings()
 seed_admin()
 seed_sample_listings()
