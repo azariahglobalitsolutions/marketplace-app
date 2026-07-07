@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wube Bereha ውቤ በረሃ | Habesha Events in USA & Yellow Pages</title>
+  <link rel="stylesheet" href="/css/site.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -21,10 +22,10 @@
     .btn-outline { @apply border border-habesha-600 text-habesha-700 px-4 py-2 rounded-lg font-medium hover:bg-habesha-50 transition; }
   </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="min-h-screen">
 
   <!-- Sticky filter bar -->
-  <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+  <header class="site-header border-b border-gray-200 sticky top-0 z-50 shadow-sm">
     <div class="max-w-6xl mx-auto px-4 py-3">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <a href="/" class="text-base sm:text-lg font-bold text-habesha-700 leading-snug max-w-md">
@@ -55,15 +56,15 @@
   <main class="max-w-6xl mx-auto px-4 py-8">
     <!-- Hero -->
     <section class="mb-10 text-center">
-      <h1 class="text-4xl font-extrabold text-gray-900 mb-3">What's Happening Each Day</h1>
-      <p class="text-lg text-gray-500 max-w-2xl mx-auto">
+      <h1 class="text-4xl font-extrabold hero-title mb-3">What's Happening Each Day</h1>
+      <p class="text-lg hero-subtitle max-w-2xl mx-auto">
         Discover Habesha cultural events, concerts, community gatherings, and celebrations across the United States — organized by day.
       </p>
     </section>
 
     <!-- Create event panel (auth only) -->
     <section id="create-panel" class="hidden mb-8">
-      <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+      <div class="glass-panel rounded-xl border border-gray-200 p-6 shadow-sm">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-bold text-gray-900">Post a New Event</h2>
           <button id="toggle-create" class="btn-outline text-sm">Toggle Form</button>
@@ -92,7 +93,7 @@
     <div id="events-container"></div>
   </main>
 
-  <footer class="border-t border-gray-200 bg-white mt-12">
+  <footer class="site-footer border-t border-gray-200 mt-12">
     <div class="max-w-6xl mx-auto px-4 py-6 text-center text-sm text-gray-400">
       <p>&copy; 2026 Wube Bereha ውቤ በረሃ Habesha Events in USA & Yellow Pages. Celebrating culture across America.</p>
       <p class="mt-1">Powered by Ermias G</p>

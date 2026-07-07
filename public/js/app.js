@@ -40,7 +40,7 @@ function renderEventCard(event) {
     : `<p class="mt-3 text-sm text-amber-700"><a href="/login.html" class="underline">Sign in</a> to view organizer contact details</p>`;
 
   return `
-    <article class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition">
+    <article class="glass-panel rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition">
       <div class="flex items-start justify-between gap-3">
         <div>
           <h3 class="text-lg font-bold text-gray-900">${event.title}</h3>
