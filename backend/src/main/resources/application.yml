@@ -5,7 +5,7 @@ spring:
   application:
     name: wube-bereha-habesha-events
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/wubebereha}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/wubebereha}
     username: ${DATABASE_USERNAME:postgres}
     password: ${DATABASE_PASSWORD:postgres}
   jpa:

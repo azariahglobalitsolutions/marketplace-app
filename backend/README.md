@@ -29,13 +29,10 @@ Cross-origin requests from the Next.js frontend are allowed only from `FRONTEND_
 Allowed methods: `GET`, `POST`, `OPTIONS`.  
 Allowed headers: `Authorization`, `Content-Type`, `Accept`.
 
-## Commands
+## Deployment
 
-```bash
-./mvnw test
-./mvnw clean package
-java -jar target/wube-bereha-api-0.0.1-SNAPSHOT.jar
-```
+See [docs/DEPLOYMENT.md](../docs/DEPLOYMENT.md) for the full Render checklist (PostgreSQL, API health, CORS, frontend URL wiring, custom domains, and verification script).
+
 
 ## API
 
