@@ -1,11 +1,12 @@
 import type { ListingCategory } from "@/types/api";
+import { DIRECTORY_SECTIONS } from "@/lib/directory/sections";
 
 export const CATEGORY_ROUTES: Record<ListingCategory, string> = {
   events: "/events",
-  restaurants: "/restaurants",
-  health: "/health",
-  education: "/education",
-  communities: "/communities",
+  restaurants: DIRECTORY_SECTIONS.restaurants.path,
+  health: DIRECTORY_SECTIONS.health.path,
+  education: DIRECTORY_SECTIONS.education.path,
+  communities: DIRECTORY_SECTIONS.communities.path,
 };
 
 export const FEATURED_CATEGORIES: ListingCategory[] = [
