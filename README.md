@@ -1,99 +1,78 @@
-# Wube Bereha ውቤ በረሃ — Habesha Events in USA & Yellow Pages
+# Wube Bereha ውቤ በረሃ — Habesha community discovery platform
 
-Eventbrite-style web application for listing Habesha cultural events across the United States.
+Event and directory platform for Habesha cultural events, restaurants, and community listings across the United States.
 
-## Tech Stack
+## Tech stack
 
-- **Frontend:** HTML5, Tailwind CSS, JavaScript
-- **Backend:** Python + Flask
-- **Database:** SQLite (modular config for future PostgreSQL migration)
-- **Analytics:** prometheus-client (metrics at `/metrics`)
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | Next.js 16, TypeScript, Tailwind CSS, App Router |
+| **Backend** | Spring Boot 4, Java 21, Maven |
+| **Database** | PostgreSQL (Flyway migrations) |
+| **Deploy** | Render Blueprint (`render.yaml`) |
 
-## Quick Start
+## Quick start
+
+### Backend (Spring Boot API)
 
 ```bash
+cd backend
 cp .env.example .env
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python app.py
+./mvnw spring-boot:run
 ```
 
-Open `http://localhost:5000`
+API runs at `http://localhost:8080` — health check at `/health`.
 
-## Admin access (Spring Boot API)
+### Frontend (Next.js)
 
-Production admin accounts are **not** seeded in the database. Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` (minimum 12 characters) on the backend service when no admin exists yet. The bootstrap job creates the first admin on startup.
+```bash
+cd frontend
+cp .env.example .env.local
+npm ci
+npm run dev
+```
 
-For local development, register a normal user via `/register` or set admin env vars in `backend/.env`.
+App runs at `http://localhost:3000`.
 
-## Pages
+Set `NEXT_PUBLIC_API_BASE_URL=http://localhost:8080` and `NEXT_PUBLIC_SITE_URL=http://localhost:3000` in `frontend/.env.local`.
+
+## Project structure
+
+```
+├── backend/          # Spring Boot REST API
+├── frontend/         # Next.js App Router UI
+├── docs/             # Deployment and integration guides
+├── scripts/          # Deployment verification
+├── archive/          # Archived legacy code (read-only)
+│   └── flask-legacy/ # Original Flask application
+└── render.yaml       # Render Blueprint (PostgreSQL + API + frontend)
+```
+
+## Key routes (frontend)
 
 | Route | Description |
 |-------|-------------|
-| `/` | Daily events portal with state filter |
-| `/login.html` | Sign up / sign in |
-| `/advertise.html` | Advertising pricing & inquiry form |
-| `/admin/moderation` | Admin approval dashboard |
+| `/` | Homepage |
+| `/events` | Events directory |
+| `/restaurants`, `/health-wellness`, etc. | Category directories |
+| `/add-listing`, `/submit-event` | Authenticated submission forms |
+| `/login`, `/register` | User authentication |
+| `/advertise` | Advertising inquiry |
 
-## Access Rules
+## Admin access
 
-- **Public:** Browse approved events, filter by state, view daily schedules
-- **Authenticated:** Create event listings, view organizer contact details
-- **Admin:** Approve/reject pending events, view ad inquiries
+Production admin accounts are not seeded in the database. Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` (minimum 12 characters) on the backend when no admin exists. See `backend/.env.example`.
 
-## API Endpoints
+Admin API endpoints live under `/api/admin/**` (JWT + `admin` role required). A Next.js admin UI is planned.
 
-- `GET /api/events?state=Virginia` — List approved events (strict state filter)
-- `POST /api/events` — Create event (auth required, status: pending)
-- `POST /api/auth/register` — Register
-- `POST /api/auth/login` — Login
-- `GET /api/admin/pending` — Pending events (admin)
-- `POST /api/admin/:id/approve` — Approve event (admin)
-- `GET /api/advertise/tiers` — Pricing tiers
-- `POST /api/advertise/inquiry` — Submit ad inquiry
-- `GET /metrics` — Prometheus metrics
-- `GET /health` — Health check
+## Deployment
 
-## Environment Variables
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the full Render checklist.
 
-| Name | Description |
-|------|-------------|
-| `PORT` | Server port (default: 5000) |
-| `JWT_SECRET` | Secret for JWT tokens |
-| `DATABASE_PATH` | SQLite file path |
-| `FLASK_ENV` | `development` or `production` |
-
-## Render Deployment (Python)
-
-| Setting | Value |
-|---------|--------|
-| **Environment** | `Python` |
-| **Build Command** | `pip install -r requirements.txt` |
-| **Start Command** | `gunicorn wsgi:app --bind 0.0.0.0:$PORT` |
-| **Branch** | `main` |
-
-### Environment Variables on Render
-
-| Name of Variable | Value |
-|------------------|-------|
-| `JWT_SECRET` | A long random secret string |
-
-## Project Structure
-
+```bash
+./scripts/verify-deployment.sh "https://<api-url>" "https://<frontend-url>"
 ```
-├── app.py
-├── wsgi.py
-├── requirements.txt
-├── public/
-│   ├── index.html
-│   ├── login.html
-│   ├── admin.html
-│   ├── advertise.html
-│   └── js/
-├── src/
-│   ├── config/db.py
-│   ├── middleware/
-│   └── routes/
-└── data/          (SQLite DB, gitignored)
-```
+
+## Legacy Flask application
+
+The previous Python/Flask implementation is archived under `archive/flask-legacy/` and on git branch `flask-backup`. It is not deployed.

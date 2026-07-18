@@ -1,11 +1,26 @@
+# Dependencies & build output
 node_modules/
+frontend/.next/
+frontend/node_modules/
+backend/target/
+
+# Environment
 .env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env.local
+
+# Legacy Flask local data (archived app)
 data/
 *.db
-.DS_Store
 __pycache__/
 *.pyc
 .venv/
 venv/
-public/uploads/*
-!public/uploads/.gitkeep
+
+# OS
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
