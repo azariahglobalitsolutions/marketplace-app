@@ -1,23 +1,23 @@
-import { Container, Section } from "@/components/layout/container";
+import { PageContainer } from "@/components/layout/page-container";
+import { SectionHeading } from "@/components/layout/section-heading";
 import { brand } from "@/lib/brand";
 
 export default function Home() {
   return (
-    <main className="flex flex-1 flex-col">
-      <Section>
-        <Container className="py-8 sm:py-12">
-          <p className="text-caption">{brand.tagline}</p>
-          <h1 className="text-display mt-2">
+    <PageContainer>
+      <SectionHeading
+        as="h1"
+        title={
+          <>
             {brand.name}{" "}
-            <span lang="am" className="text-brand-amharic">
+            <span lang="am" className="text-brand-amharic text-primary">
               {brand.nameAmharic}
             </span>
-          </h1>
-          <p className="text-body-sm mt-4 max-w-2xl text-muted-foreground">
-            {brand.description}
-          </p>
-        </Container>
-      </Section>
-    </main>
+          </>
+        }
+        description={brand.description}
+      />
+      <p className="text-body-sm text-muted-foreground">{brand.tagline}</p>
+    </PageContainer>
   );
 }

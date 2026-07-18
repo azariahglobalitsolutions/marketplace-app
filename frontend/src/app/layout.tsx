@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Noto_Sans_Ethiopic, Source_Sans_3 } from "next/font/google";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { SiteShell } from "@/components/layout/site-shell";
 import { brand } from "@/lib/brand";
 import "./globals.css";
 
@@ -40,7 +41,9 @@ export default function RootLayout({
       className={`${sourceSans.variable} ${notoEthiopic.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          <SiteShell>{children}</SiteShell>
+        </QueryProvider>
       </body>
     </html>
   );
