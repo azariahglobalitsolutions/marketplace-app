@@ -1,6 +1,7 @@
 "use client";
 
 import { Inbox } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -9,6 +10,7 @@ type EmptyStateProps = {
   title: string;
   description?: string;
   actionLabel?: string;
+  actionHref?: string;
   onAction?: () => void;
   icon?: React.ReactNode;
   className?: string;
@@ -18,6 +20,7 @@ export function EmptyState({
   title,
   description,
   actionLabel,
+  actionHref,
   onAction,
   icon,
   className,
@@ -39,7 +42,12 @@ export function EmptyState({
           {description}
         </p>
       ) : null}
-      {actionLabel && onAction ? (
+      {actionLabel && actionHref ? (
+        <Button className="mt-6" variant="soft" render={<Link href={actionHref} />}>
+          {actionLabel}
+        </Button>
+      ) : null}
+      {actionLabel && onAction && !actionHref ? (
         <Button className="mt-6" variant="soft" onClick={onAction}>
           {actionLabel}
         </Button>

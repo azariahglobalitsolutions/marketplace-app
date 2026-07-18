@@ -5,6 +5,7 @@ type SectionHeadingProps = {
   description?: string;
   action?: React.ReactNode;
   as?: "h1" | "h2" | "h3";
+  id?: string;
   className?: string;
 };
 
@@ -13,6 +14,7 @@ export function SectionHeading({
   description,
   action,
   as: Component = "h2",
+  id,
   className,
 }: SectionHeadingProps) {
   return (
@@ -23,7 +25,9 @@ export function SectionHeading({
       )}
     >
       <div className="space-y-2">
-        <Component className="text-h2">{title}</Component>
+        <Component id={id} className="text-h2">
+          {title}
+        </Component>
         {description ? (
           <p className="text-body-sm max-w-3xl text-muted-foreground">
             {description}
