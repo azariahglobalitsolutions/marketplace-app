@@ -31,7 +31,9 @@ const listing = (
 describe("directory sections", () => {
   it("defines four directory sections with unique paths", () => {
     expect(DIRECTORY_SECTION_LIST).toHaveLength(4);
-    expect(getDirectorySectionByPath("/health")?.category).toBe("health");
+    expect(getDirectorySectionByPath("/health-wellness")?.category).toBe(
+      "health",
+    );
   });
 
   it("limits restaurants to backend-supported state filters", () => {

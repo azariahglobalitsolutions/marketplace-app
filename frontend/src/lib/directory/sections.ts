@@ -61,7 +61,7 @@ export const DIRECTORY_SECTIONS = {
   },
   health: {
     category: "health",
-    path: "/health",
+    path: "/health-wellness",
     title: "Health & Wellness",
     shortTitle: "Health & Wellness",
     description:
@@ -75,7 +75,7 @@ export const DIRECTORY_SECTIONS = {
   },
   education: {
     category: "education",
-    path: "/education",
+    path: "/education-training",
     title: "Education & Training",
     shortTitle: "Education & Training",
     description:
@@ -89,7 +89,7 @@ export const DIRECTORY_SECTIONS = {
   },
   communities: {
     category: "communities",
-    path: "/communities",
+    path: "/communities-networking",
     title: "Communities & Networking",
     shortTitle: "Communities & Networking",
     description:

@@ -18,17 +18,17 @@ export const primaryNavigation: NavItem[] = [
   },
   {
     label: "Health & Wellness",
-    href: "/health",
+    href: "/health-wellness",
     description: "Clinics, counseling, and wellness providers",
   },
   {
     label: "Education & Training",
-    href: "/education",
+    href: "/education-training",
     description: "Language schools, tutoring, and training",
   },
   {
     label: "Communities & Networking",
-    href: "/communities",
+    href: "/communities-networking",
     description: "Professional networks and community groups",
   },
 ];

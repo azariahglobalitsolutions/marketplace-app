@@ -33,6 +33,9 @@ describe("buildListingCanonicalPath", () => {
     expect(
       buildListingCanonicalPath(DIRECTORY_SECTIONS.restaurants, 7),
     ).toBe("/restaurants/7");
+    expect(
+      buildListingCanonicalPath(DIRECTORY_SECTIONS.health, 3),
+    ).toBe("/health-wellness/3");
   });
 });
 
