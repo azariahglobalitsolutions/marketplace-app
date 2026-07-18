@@ -28,16 +28,19 @@ Render injects `DATABASE_URL` (`postgresql://…`) into the backend service. The
 |---------|-------|
 | Service name | `wubebereha-api` |
 | Root directory | `backend` |
-| Build | `./mvnw clean package -DskipTests` |
+| Build | `./mvnw clean verify` |
 | Start | `java -jar target/wube-bereha-api-0.0.1-SNAPSHOT.jar` |
-| Health check | `/health` |
+| Health check | `/health` (includes database connectivity) |
+| Profile | `SPRING_PROFILES_ACTIVE=prod` |
 
 Required environment variables:
 
 | Variable | Source |
 |----------|--------|
-| `DATABASE_URL` | Linked PostgreSQL (`connectionString`) |
+| `DATABASE_URL` | Linked PostgreSQL (`connectionString`) — user/password parsed automatically |
 | `JWT_SECRET` | Auto-generated on Render |
+| `JWT_EXPIRATION_HOURS` | Optional (default `24`) |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Set manually for first admin bootstrap (min 12 chars) |
 | `FRONTEND_ALLOWED_ORIGIN` | Frontend `RENDER_EXTERNAL_URL` (see step 5) |
 | `UPLOAD_DIR` | `/var/data/uploads` (persistent disk mounted in blueprint) |
 
