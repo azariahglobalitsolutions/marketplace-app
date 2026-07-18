@@ -118,7 +118,7 @@ export function EventsPageView({
                 : "There are no approved events to show right now. Check back soon or submit one for your community."
             }
             actionLabel="Submit an event"
-            actionHref="/events/new"
+            actionHref="/submit-event"
           />
         ) : null}
 

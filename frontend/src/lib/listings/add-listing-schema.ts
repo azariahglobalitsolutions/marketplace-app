@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import type { ListingCategory } from "@/types/api";
 
-/** Directory listing categories accepted by POST /api/listings (events use /events/new). */
+/** Directory listing categories accepted by POST /api/listings (events use /submit-event). */
 export const ADD_LISTING_CATEGORIES = [
   "restaurants",
   "health",

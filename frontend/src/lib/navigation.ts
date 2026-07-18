@@ -35,7 +35,7 @@ export const primaryNavigation: NavItem[] = [
 
 export const actionNavigation: NavItem[] = [
   { label: "Add a Listing", href: "/add-listing" },
-  { label: "Submit an Event", href: "/events/new" },
+  { label: "Submit an Event", href: "/submit-event" },
 ];
 
 export const footerNavigation: NavItem[] = [
