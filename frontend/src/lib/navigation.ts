@@ -34,7 +34,7 @@ export const primaryNavigation: NavItem[] = [
 ];
 
 export const actionNavigation: NavItem[] = [
-  { label: "Add a Listing", href: "/listings/new" },
+  { label: "Add a Listing", href: "/add-listing" },
   { label: "Submit an Event", href: "/events/new" },
 ];
 

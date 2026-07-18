@@ -19,7 +19,7 @@ export function ListingEmptyState({
           : section.emptyDescription
       }
       actionLabel={section.addListingLabel}
-      actionHref="/listings/new"
+      actionHref="/add-listing"
     />
   );
 }

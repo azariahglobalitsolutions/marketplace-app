@@ -21,7 +21,7 @@ const actions = [
   },
   {
     label: "Add a Listing",
-    href: "/listings/new",
+    href: "/add-listing",
     icon: PlusCircle,
     variant: "outline" as const,
   },

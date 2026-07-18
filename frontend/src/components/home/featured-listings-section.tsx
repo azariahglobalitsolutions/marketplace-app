@@ -59,7 +59,7 @@ export function FeaturedListingsSection({
             title="No featured listings yet"
             description="Approved listings will appear here once organizers submit restaurants, health providers, education programs, or community groups."
             actionLabel="Add a listing"
-            actionHref="/listings/new"
+            actionHref="/add-listing"
           />
         ) : null}
 

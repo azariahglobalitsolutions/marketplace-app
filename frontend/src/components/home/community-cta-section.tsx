@@ -32,7 +32,7 @@ export function CommunityCtaSection({ className }: CommunityCtaSectionProps) {
           </div>
           <div className="flex flex-col gap-3 sm:items-stretch">
             <Link
-              href="/listings/new"
+              href="/add-listing"
               className={buttonVariants({ size: "lg" })}
             >
               Add a listing
