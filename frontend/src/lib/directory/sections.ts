@@ -1,5 +1,31 @@
 import type { ListingCategory } from "@/types/api";
 
+/** Filters exposed in the directory UI for a section. */
+export type DirectoryFilterSupport = {
+  /** Sent to GET /api/listings?state= */
+  state: boolean;
+  /** Client-side only — not supported by the listings API. */
+  city: boolean;
+  /** Client-side only — not supported by the listings API. */
+  pagination: boolean;
+  /** Show directory section switcher in filters. */
+  categoryNavigation: boolean;
+};
+
+export const BACKEND_ONLY_DIRECTORY_FILTERS: DirectoryFilterSupport = {
+  state: true,
+  city: false,
+  pagination: false,
+  categoryNavigation: true,
+};
+
+export const FULL_DIRECTORY_FILTERS: DirectoryFilterSupport = {
+  state: true,
+  city: true,
+  pagination: true,
+  categoryNavigation: true,
+};
+
 /**
  * Directory section configuration for non-event listing categories.
  * Events use the dedicated /events route and are not part of this framework.
@@ -13,6 +39,9 @@ export type DirectorySectionConfig = {
   emptyTitle: string;
   emptyDescription: string;
   addListingLabel: string;
+  filters: DirectoryFilterSupport;
+  /** Schema.org type for JSON-LD on detail pages. */
+  schemaType?: "Restaurant" | "LocalBusiness";
 };
 
 export const DIRECTORY_SECTIONS = {
@@ -27,6 +56,8 @@ export const DIRECTORY_SECTIONS = {
     emptyDescription:
       "There are no approved restaurant or lounge listings matching your filters right now.",
     addListingLabel: "Add a restaurant listing",
+    filters: BACKEND_ONLY_DIRECTORY_FILTERS,
+    schemaType: "Restaurant",
   },
   health: {
     category: "health",
@@ -39,6 +70,8 @@ export const DIRECTORY_SECTIONS = {
     emptyDescription:
       "There are no approved health and wellness listings matching your filters right now.",
     addListingLabel: "Add a health listing",
+    filters: FULL_DIRECTORY_FILTERS,
+    schemaType: "LocalBusiness",
   },
   education: {
     category: "education",
@@ -51,6 +84,8 @@ export const DIRECTORY_SECTIONS = {
     emptyDescription:
       "There are no approved education and training listings matching your filters right now.",
     addListingLabel: "Add an education listing",
+    filters: FULL_DIRECTORY_FILTERS,
+    schemaType: "LocalBusiness",
   },
   communities: {
     category: "communities",
@@ -63,6 +98,8 @@ export const DIRECTORY_SECTIONS = {
     emptyDescription:
       "There are no approved community listings matching your filters right now.",
     addListingLabel: "Add a community listing",
+    filters: FULL_DIRECTORY_FILTERS,
+    schemaType: "LocalBusiness",
   },
 } as const satisfies Record<
   Exclude<ListingCategory, "events">,

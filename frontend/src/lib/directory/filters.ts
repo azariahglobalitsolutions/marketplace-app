@@ -1,5 +1,6 @@
 import type { ListingResponse } from "@/types/api";
 import { DIRECTORY_PAGE_SIZE } from "@/lib/directory/constants";
+import type { DirectoryFilterSupport } from "@/lib/directory/sections";
 
 export type PaginationResult<T> = {
   items: T[];
@@ -47,8 +48,20 @@ export function extractCities(listings: ListingResponse[]): string[] {
   return [...cities].sort((left, right) => left.localeCompare(right));
 }
 
+export function sanitizeDirectoryFilters(
+  filters: DirectoryFilters,
+  support: DirectoryFilterSupport,
+): DirectoryFilters {
+  return {
+    state: support.state ? filters.state : undefined,
+    city: support.city ? filters.city : undefined,
+    page: support.pagination ? filters.page : 1,
+  };
+}
+
 export function parseDirectoryFilters(
   searchParams: Record<string, string | string[] | undefined>,
+  support?: DirectoryFilterSupport,
 ): DirectoryFilters {
   const read = (key: string) => {
     const value = searchParams[key];
@@ -60,11 +73,13 @@ export function parseDirectoryFilters(
 
   const pageValue = Number.parseInt(read("page") ?? "1", 10);
 
-  return {
+  const filters: DirectoryFilters = {
     state: read("state")?.trim() || undefined,
     city: read("city")?.trim() || undefined,
     page: Number.isFinite(pageValue) && pageValue > 0 ? pageValue : 1,
   };
+
+  return support ? sanitizeDirectoryFilters(filters, support) : filters;
 }
 
 export function applyDirectoryFilters(
@@ -80,27 +95,41 @@ export function applyDirectoryFilters(
 
 export function buildDirectorySearchParams(
   filters: DirectoryFilters,
+  support?: DirectoryFilterSupport,
 ): URLSearchParams {
+  const sanitized = support
+    ? sanitizeDirectoryFilters(filters, support)
+    : filters;
   const params = new URLSearchParams();
 
-  if (filters.state) {
-    params.set("state", filters.state);
+  if (sanitized.state) {
+    params.set("state", sanitized.state);
   }
-  if (filters.city) {
-    params.set("city", filters.city);
+  if (sanitized.city) {
+    params.set("city", sanitized.city);
   }
-  if (filters.page > 1) {
-    params.set("page", String(filters.page));
+  if (sanitized.page > 1) {
+    params.set("page", String(sanitized.page));
   }
 
   return params;
 }
 
-export function filtersToQueryString(filters: DirectoryFilters): string {
-  const query = buildDirectorySearchParams(filters).toString();
+export function filtersToQueryString(
+  filters: DirectoryFilters,
+  support?: DirectoryFilterSupport,
+): string {
+  const query = buildDirectorySearchParams(filters, support).toString();
   return query ? `?${query}` : "";
 }
 
-export function countActiveDirectoryFilters(filters: DirectoryFilters): number {
-  return [filters.state, filters.city].filter(Boolean).length;
+export function countActiveDirectoryFilters(
+  filters: DirectoryFilters,
+  support?: DirectoryFilterSupport,
+): number {
+  const sanitized = support
+    ? sanitizeDirectoryFilters(filters, support)
+    : filters;
+
+  return [sanitized.state, sanitized.city].filter(Boolean).length;
 }

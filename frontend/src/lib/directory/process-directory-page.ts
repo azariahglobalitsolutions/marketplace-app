@@ -4,6 +4,7 @@ import {
   paginateItems,
   type DirectoryFilters,
 } from "@/lib/directory/filters";
+import type { DirectoryFilterSupport } from "@/lib/directory/sections";
 import type { ListingResponse } from "@/types/api";
 
 export type ProcessedDirectoryPage = {
@@ -15,9 +16,21 @@ export type ProcessedDirectoryPage = {
 export function processDirectoryPage(
   listings: ListingResponse[],
   filters: DirectoryFilters,
+  support?: DirectoryFilterSupport,
 ): ProcessedDirectoryPage {
-  const filtered = applyDirectoryFilters(listings, filters);
-  const pagination = paginateItems(filtered, filters.page);
+  const filtered = support?.city
+    ? applyDirectoryFilters(listings, filters)
+    : listings;
+
+  const pagination = support?.pagination
+    ? paginateItems(filtered, filters.page)
+    : {
+        items: filtered,
+        page: 1,
+        pageSize: filtered.length || 1,
+        totalItems: filtered.length,
+        totalPages: 1,
+      };
 
   return {
     listings: pagination.items,

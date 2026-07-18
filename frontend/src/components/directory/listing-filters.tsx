@@ -14,6 +14,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { DIRECTORY_CLIENT_FILTER_NOTICE } from "@/lib/directory/capabilities";
+import type { DirectoryFilterSupport } from "@/lib/directory/sections";
 import { cn } from "@/lib/utils";
 
 export type ListingFilterValues = {
@@ -25,6 +26,7 @@ type ListingFiltersBaseProps = {
   values: ListingFilterValues;
   states: string[];
   cities: string[];
+  filterSupport: DirectoryFilterSupport;
   onApply: (values: ListingFilterValues) => void;
   onReset: () => void;
 };
@@ -34,6 +36,7 @@ function ListingFiltersForm({
   values,
   states,
   cities,
+  filterSupport,
   onChange,
   onApply,
   onReset,
@@ -43,24 +46,31 @@ function ListingFiltersForm({
   onApply: () => void;
   onReset: () => void;
 }) {
+  const usesClientFilters = filterSupport.city || filterSupport.pagination;
+
   return (
     <div className="space-y-5">
-      <CategoryFilter idPrefix={`${idPrefix}-category`} />
+      {filterSupport.categoryNavigation ? (
+        <CategoryFilter idPrefix={`${idPrefix}-category`} />
+      ) : null}
       <LocationFilter
         idPrefix={idPrefix}
         state={values.state}
         city={values.city}
         states={states}
         cities={cities}
+        filterSupport={filterSupport}
         onStateChange={(state) => onChange({ ...values, state })}
         onCityChange={(city) => onChange({ ...values, city })}
       />
-      <p
-        className="text-caption rounded-lg border border-dashed border-border bg-muted/40 px-3 py-2"
-        data-dev-notice="directory-client-filters"
-      >
-        {DIRECTORY_CLIENT_FILTER_NOTICE}
-      </p>
+      {usesClientFilters ? (
+        <p
+          className="text-caption rounded-lg border border-dashed border-border bg-muted/40 px-3 py-2"
+          data-dev-notice="directory-client-filters"
+        >
+          {DIRECTORY_CLIENT_FILTER_NOTICE}
+        </p>
+      ) : null}
       <div className="flex flex-col gap-2">
         <Button type="button" onClick={onApply}>
           Apply filters
@@ -82,6 +92,7 @@ function SidebarFiltersDraft(props: ListingFiltersBaseProps) {
       values={draft}
       states={props.states}
       cities={props.cities}
+      filterSupport={props.filterSupport}
       onChange={setDraft}
       onApply={() => props.onApply(draft)}
       onReset={props.onReset}
@@ -144,6 +155,7 @@ export function ListingFiltersDrawer({
           values={draft}
           states={props.states}
           cities={props.cities}
+          filterSupport={props.filterSupport}
           onChange={setDraft}
           onApply={() => {
             props.onApply(draft);
@@ -156,20 +168,5 @@ export function ListingFiltersDrawer({
         />
       </SheetContent>
     </Sheet>
-  );
-}
-
-/** @deprecated Use ListingFiltersSidebar and ListingFiltersDrawer directly. */
-export function ListingFilters(
-  props: ListingFiltersBaseProps & {
-    activeFilterCount?: number;
-    className?: string;
-  },
-) {
-  return (
-    <>
-      <ListingFiltersSidebar {...props} />
-      <ListingFiltersDrawer {...props} />
-    </>
   );
 }

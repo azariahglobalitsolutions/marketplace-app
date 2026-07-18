@@ -40,10 +40,11 @@ export function DirectoryPageView({
 }: DirectoryPageViewProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const { filters: filterSupport } = section;
 
   const processed = useMemo(
-    () => processDirectoryPage(listings, filters),
-    [listings, filters],
+    () => processDirectoryPage(listings, filters, filterSupport),
+    [listings, filters, filterSupport],
   );
 
   const formValues = {
@@ -52,13 +53,16 @@ export function DirectoryPageView({
   };
 
   function navigate(next: DirectoryFilters) {
-    router.push(`${pathname}${filtersToQueryString(next)}`, { scroll: false });
+    router.push(
+      `${pathname}${filtersToQueryString(next, filterSupport)}`,
+      { scroll: false },
+    );
   }
 
   function applyForm(values: { state: string; city: string }) {
     navigate({
       state: values.state || undefined,
-      city: values.city || undefined,
+      city: filterSupport.city ? values.city || undefined : undefined,
       page: 1,
     });
   }
@@ -67,19 +71,31 @@ export function DirectoryPageView({
     navigate({ page: 1 });
   }
 
-  const activeFilterCount = countActiveDirectoryFilters(filters);
-  const showEmpty =
-    !error && processed.pagination.totalItems === 0;
+  const activeFilterCount = countActiveDirectoryFilters(filters, filterSupport);
+  const showEmpty = !error && processed.pagination.totalItems === 0;
+  const showFilters =
+    filterSupport.state ||
+    filterSupport.city ||
+    filterSupport.categoryNavigation;
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
-      <ListingFiltersSidebar
-        values={formValues}
-        states={states}
-        cities={processed.cities}
-        onApply={applyForm}
-        onReset={resetFilters}
-      />
+    <div
+      className={
+        showFilters
+          ? "grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]"
+          : "space-y-6"
+      }
+    >
+      {showFilters ? (
+        <ListingFiltersSidebar
+          values={formValues}
+          states={states}
+          cities={processed.cities}
+          filterSupport={filterSupport}
+          onApply={applyForm}
+          onReset={resetFilters}
+        />
+      ) : null}
 
       <div className="min-w-0 space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -89,14 +105,17 @@ export function DirectoryPageView({
             description={section.description}
             className="mb-0"
           />
-          <ListingFiltersDrawer
-            values={formValues}
-            states={states}
-            cities={processed.cities}
-            onApply={applyForm}
-            onReset={resetFilters}
-            activeFilterCount={activeFilterCount}
-          />
+          {showFilters ? (
+            <ListingFiltersDrawer
+              values={formValues}
+              states={states}
+              cities={processed.cities}
+              filterSupport={filterSupport}
+              onApply={applyForm}
+              onReset={resetFilters}
+              activeFilterCount={activeFilterCount}
+            />
+          ) : null}
         </div>
 
         {error ? (
@@ -120,10 +139,12 @@ export function DirectoryPageView({
               apiBaseUrl={apiBaseUrl}
               section={section}
             />
-            <Pagination
-              pagination={processed.pagination}
-              onPageChange={(page) => navigate({ ...filters, page })}
-            />
+            {filterSupport.pagination ? (
+              <Pagination
+                pagination={processed.pagination}
+                onPageChange={(page) => navigate({ ...filters, page })}
+              />
+            ) : null}
           </>
         ) : null}
       </div>

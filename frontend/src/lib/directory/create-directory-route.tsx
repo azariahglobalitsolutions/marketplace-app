@@ -14,7 +14,7 @@ export function createDirectoryMetadata(
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) => Promise<Metadata> {
   return async function generateDirectoryMetadata({ searchParams }) {
-    const filters = parseDirectoryFilters(await searchParams);
+    const filters = parseDirectoryFilters(await searchParams, section.filters);
     const locationSuffix = filters.state ? ` in ${filters.state}` : "";
 
     return {
@@ -38,7 +38,7 @@ export function createDirectoryPage(section: DirectorySectionConfig) {
   }: {
     searchParams: Promise<Record<string, string | string[] | undefined>>;
   }) {
-    const filters = parseDirectoryFilters(await searchParams);
+    const filters = parseDirectoryFilters(await searchParams, section.filters);
     const data = await getDirectoryPageData(section, filters.state);
 
     return (

@@ -6,10 +6,13 @@ import {
   filtersToQueryString,
   paginateItems,
   parseDirectoryFilters,
+  sanitizeDirectoryFilters,
 } from "@/lib/directory/filters";
 import { processDirectoryPage } from "@/lib/directory/process-directory-page";
 import {
+  BACKEND_ONLY_DIRECTORY_FILTERS,
   DIRECTORY_SECTION_LIST,
+  FULL_DIRECTORY_FILTERS,
   getDirectorySectionByPath,
 } from "@/lib/directory/sections";
 import type { ListingResponse } from "@/types/api";
@@ -30,6 +33,12 @@ describe("directory sections", () => {
     expect(DIRECTORY_SECTION_LIST).toHaveLength(4);
     expect(getDirectorySectionByPath("/health")?.category).toBe("health");
   });
+
+  it("limits restaurants to backend-supported state filters", () => {
+    expect(getDirectorySectionByPath("/restaurants")?.filters).toEqual(
+      BACKEND_ONLY_DIRECTORY_FILTERS,
+    );
+  });
 });
 
 describe("parseDirectoryFilters", () => {
@@ -44,6 +53,38 @@ describe("parseDirectoryFilters", () => {
       state: "Virginia",
       city: "Arlington",
       page: 2,
+    });
+  });
+
+  it("drops unsupported filters for backend-only sections", () => {
+    expect(
+      parseDirectoryFilters(
+        {
+          state: "Virginia",
+          city: "Arlington",
+          page: "2",
+        },
+        BACKEND_ONLY_DIRECTORY_FILTERS,
+      ),
+    ).toEqual({
+      state: "Virginia",
+      city: undefined,
+      page: 1,
+    });
+  });
+});
+
+describe("sanitizeDirectoryFilters", () => {
+  it("keeps only state when city and pagination are disabled", () => {
+    expect(
+      sanitizeDirectoryFilters(
+        { state: "Texas", city: "Dallas", page: 3 },
+        BACKEND_ONLY_DIRECTORY_FILTERS,
+      ),
+    ).toEqual({
+      state: "Texas",
+      city: undefined,
+      page: 1,
     });
   });
 });
@@ -65,10 +106,29 @@ describe("processDirectoryPage", () => {
       listing({ id: index + 1, title: `Listing ${index + 1}` }),
     );
 
-    const result = processDirectoryPage(listings, { page: 2 });
+    const result = processDirectoryPage(
+      listings,
+      { page: 2 },
+      FULL_DIRECTORY_FILTERS,
+    );
 
     expect(result.listings).toHaveLength(2);
     expect(result.pagination.page).toBe(2);
+  });
+
+  it("returns all listings when pagination is disabled", () => {
+    const listings = Array.from({ length: 14 }, (_, index) =>
+      listing({ id: index + 1, title: `Listing ${index + 1}` }),
+    );
+
+    const result = processDirectoryPage(
+      listings,
+      { page: 2 },
+      BACKEND_ONLY_DIRECTORY_FILTERS,
+    );
+
+    expect(result.listings).toHaveLength(14);
+    expect(result.pagination.totalPages).toBe(1);
   });
 });
 
@@ -81,6 +141,19 @@ describe("filtersToQueryString", () => {
         page: 2,
       }),
     ).toBe("?state=Texas&city=Dallas&page=2");
+  });
+
+  it("omits unsupported filters for backend-only sections", () => {
+    expect(
+      filtersToQueryString(
+        {
+          state: "Texas",
+          city: "Dallas",
+          page: 2,
+        },
+        BACKEND_ONLY_DIRECTORY_FILTERS,
+      ),
+    ).toBe("?state=Texas");
   });
 });
 
