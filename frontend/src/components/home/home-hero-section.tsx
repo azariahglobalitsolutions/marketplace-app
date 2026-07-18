@@ -27,7 +27,7 @@ const actions = [
   },
   {
     label: "Submit an Event",
-    href: "/events/new",
+    href: "/submit-event",
     icon: CalendarPlus,
     variant: "outline" as const,
   },
