@@ -1,6 +1,7 @@
 import { resolveMediaUrl } from "@/lib/api/media-url";
 import { formatEventAddress } from "@/lib/events/address";
 import { buildListingCanonicalPath } from "@/lib/directory/slug";
+import { serializeJsonLd } from "@/lib/seo/safe-json-ld";
 import type { DirectorySectionConfig } from "@/lib/directory/sections";
 import type { ListingResponse } from "@/types/api";
 
@@ -77,7 +78,7 @@ export function buildListingJsonLd(options: {
 }
 
 export function serializeListingJsonLd(jsonLd: LocalBusinessJsonLd): string {
-  return JSON.stringify(jsonLd);
+  return serializeJsonLd(jsonLd);
 }
 
 export function buildListingMetadataDescription(

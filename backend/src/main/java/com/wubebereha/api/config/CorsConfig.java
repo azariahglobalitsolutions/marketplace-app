@@ -11,11 +11,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 public class CorsConfig {
 
-    private static final List<String> ALLOWED_METHODS = List.of("GET", "POST", "OPTIONS");
+    private static final List<String> ALLOWED_METHODS = List.of(
+            "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
+    );
     private static final List<String> ALLOWED_HEADERS = List.of(
             HttpHeaders.AUTHORIZATION,
             HttpHeaders.CONTENT_TYPE,
-            HttpHeaders.ACCEPT
+            HttpHeaders.ACCEPT,
+            "X-Request-Id"
     );
 
     @Bean

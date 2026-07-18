@@ -33,7 +33,7 @@ class CorsConfigTest {
                 .andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, ALLOWED_ORIGIN))
                 .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true"))
-                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "GET,POST,OPTIONS"))
+                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "GET,POST,PUT,PATCH,DELETE,OPTIONS"))
                 .andExpect(header().exists(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS));
     }
 
@@ -50,7 +50,7 @@ class CorsConfigTest {
     void preflightRejectsUnsupportedMethods() throws Exception {
         mockMvc.perform(options("/api/listings/categories")
                         .header(HttpHeaders.ORIGIN, ALLOWED_ORIGIN)
-                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "PUT"))
+                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "TRACE"))
                 .andExpect(status().isForbidden())
                 .andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }

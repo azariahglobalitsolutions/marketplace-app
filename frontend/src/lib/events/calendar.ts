@@ -1,6 +1,7 @@
 import { format, parseISO } from "date-fns";
 
 import { formatEventAddress } from "@/lib/events/address";
+import { DEFAULT_EVENT_TIMEZONE } from "@/lib/events/timezone";
 import type { ListingResponse } from "@/types/api";
 
 function pad(value: number): string {
@@ -44,8 +45,8 @@ export function buildIcsCalendarContent(event: ListingResponse): string | null {
     "BEGIN:VEVENT",
     `UID:event-${event.id}@wubebereha`,
     `DTSTAMP:${now}`,
-    `DTSTART:${dtStart}`,
-    `DTEND:${dtEnd}`,
+    `DTSTART;TZID=${DEFAULT_EVENT_TIMEZONE}:${dtStart}`,
+    `DTEND;TZID=${DEFAULT_EVENT_TIMEZONE}:${dtEnd}`,
     `SUMMARY:${escapeIcsText(event.title)}`,
     `DESCRIPTION:${escapeIcsText(event.description)}`,
   ];

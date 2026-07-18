@@ -3,6 +3,7 @@ import { CalendarDays, Clock, MapPin } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OptimizedImage } from "@/components/media/optimized-image";
 import { resolveMediaUrl } from "@/lib/api/media-url";
 import { formatListingDate, formatListingTime } from "@/lib/home/format";
 import type { ListingResponse } from "@/types/api";
@@ -33,12 +34,12 @@ export function EventListCard({
       <Link href={`/events/${event.id}`} className="flex h-full flex-col">
         <div className="relative aspect-[4/3] w-full bg-muted">
           {imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <OptimizedImage
               src={imageUrl}
               alt=""
-              className="h-full w-full object-cover"
-              loading="lazy"
+              fill
+              sizes="(max-width: 768px) 100vw, 33vw"
+              className="object-cover"
             />
           ) : (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">

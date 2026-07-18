@@ -1,11 +1,8 @@
-import { createBrowserApiClient } from "@/lib/api/browser";
-import { isApiError } from "@/lib/api/errors";
-import { getAccessToken } from "@/lib/auth/access-token";
-import { mapListingApiErrorToFields } from "@/lib/listings/add-listing-errors";
 import {
   toCreateListingPayload,
   type AddListingFormValues,
 } from "@/lib/listings/add-listing-schema";
+import { mapListingApiErrorToFields } from "@/lib/listings/add-listing-errors";
 import type { CreateListingResponse } from "@/types/api";
 
 export type SubmitAddListingResult =
@@ -22,29 +19,37 @@ export type SubmitAddListingResult =
 export async function submitAddListing(
   values: AddListingFormValues,
 ): Promise<SubmitAddListingResult> {
-  const api = createBrowserApiClient({ getAccessToken });
   const payload = toCreateListingPayload(values);
+  const form = new FormData();
 
-  try {
-    const response = payload.picture
-      ? await api.createListingMultipart(payload)
-      : await api.createListing(payload);
-
-    return { ok: true, response };
-  } catch (error) {
-    if (isApiError(error)) {
-      return {
-        ok: false,
-        fieldErrors: mapListingApiErrorToFields(error.message),
-        status: error.status,
-      };
+  for (const [key, value] of Object.entries(payload)) {
+    if (value === undefined || value === null) {
+      continue;
     }
 
+    if (value instanceof File) {
+      form.append(key, value);
+    } else {
+      form.append(key, String(value));
+    }
+  }
+
+  const response = await fetch("/api/listings", {
+    method: "POST",
+    credentials: "include",
+    body: form,
+  });
+
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as { error?: string } | null;
+    const message = body?.error ?? "Unable to submit listing.";
     return {
       ok: false,
-      fieldErrors: {
-        _form: error instanceof Error ? error.message : "Unable to submit listing.",
-      },
+      fieldErrors: mapListingApiErrorToFields(message),
+      status: response.status,
     };
   }
+
+  const data = (await response.json()) as CreateListingResponse;
+  return { ok: true, response: data };
 }

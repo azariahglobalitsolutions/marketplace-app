@@ -106,8 +106,8 @@ public class AuthService {
                 && (request.phone() == null || request.phone().isBlank()))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email or phone and password are required");
         }
-        if (request.password().length() < 6) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 6 characters");
+        if (request.password().length() < 12) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 12 characters");
         }
     }
 }

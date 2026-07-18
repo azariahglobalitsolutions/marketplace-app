@@ -1,6 +1,6 @@
 import { createServerApiClient } from "@/lib/api/server";
 import { isApiError } from "@/lib/api/errors";
-import { isPublicApiBaseUrlConfigured } from "@/lib/config/env";
+import { getPublicApiBaseUrl, isPublicApiBaseUrlConfigured } from "@/lib/config/env";
 import type { DirectorySectionConfig } from "@/lib/directory/sections";
 import type { ListingResponse } from "@/types/api";
 
@@ -8,6 +8,7 @@ const RELATED_LISTINGS_LIMIT = 3;
 
 export type ListingDetailData =
   | { notFound: true }
+  | { serverError: true; message: string }
   | {
       notFound: false;
       listing: ListingResponse;
@@ -37,8 +38,7 @@ export async function getListingDetailData(
   }
 
   const api = createServerApiClient();
-  const apiBaseUrl =
-    process.env.NEXT_PUBLIC_API_BASE_URL?.trim().replace(/\/+$/, "") ?? "";
+  const apiBaseUrl = getPublicApiBaseUrl();
 
   try {
     const detail = await api.getListing(listingId);
@@ -77,6 +77,9 @@ export async function getListingDetailData(
       return { notFound: true };
     }
 
-    throw error;
+    return {
+      serverError: true,
+      message: errorMessage(error),
+    };
   }
 }

@@ -1,12 +1,13 @@
 import { createServerApiClient } from "@/lib/api/server";
 import { isApiError } from "@/lib/api/errors";
-import { isPublicApiBaseUrlConfigured } from "@/lib/config/env";
+import { getPublicApiBaseUrl, isPublicApiBaseUrlConfigured } from "@/lib/config/env";
 import type { ListingResponse } from "@/types/api";
 
 const RELATED_EVENTS_LIMIT = 3;
 
 export type EventDetailData =
   | { notFound: true }
+  | { serverError: true; message: string }
   | {
       notFound: false;
       event: ListingResponse;
@@ -35,8 +36,7 @@ export async function getEventDetailData(
   }
 
   const api = createServerApiClient();
-  const apiBaseUrl =
-    process.env.NEXT_PUBLIC_API_BASE_URL?.trim().replace(/\/+$/, "") ?? "";
+  const apiBaseUrl = getPublicApiBaseUrl();
 
   try {
     const detail = await api.getListing(listingId);
@@ -72,6 +72,9 @@ export async function getEventDetailData(
       return { notFound: true };
     }
 
-    throw error;
+    return {
+      serverError: true,
+      message: errorMessage(error),
+    };
   }
 }

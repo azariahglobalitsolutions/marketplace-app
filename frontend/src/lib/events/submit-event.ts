@@ -1,6 +1,3 @@
-import { createBrowserApiClient } from "@/lib/api/browser";
-import { isApiError } from "@/lib/api/errors";
-import { getAccessToken } from "@/lib/auth/access-token";
 import { mapEventApiErrorToFields } from "@/lib/events/submit-event-errors";
 import {
   toCreateEventPayload,
@@ -22,26 +19,25 @@ export type SubmitEventResult =
 export async function submitEvent(
   values: SubmitEventFormValues,
 ): Promise<SubmitEventResult> {
-  const api = createBrowserApiClient({ getAccessToken });
   const payload = toCreateEventPayload(values);
 
-  try {
-    const response = await api.createEvent(payload);
-    return { ok: true, response };
-  } catch (error) {
-    if (isApiError(error)) {
-      return {
-        ok: false,
-        fieldErrors: mapEventApiErrorToFields(error.message, error.status),
-        status: error.status,
-      };
-    }
+  const response = await fetch("/api/events", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
 
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as { error?: string } | null;
+    const message = body?.error ?? "Unable to submit event.";
     return {
       ok: false,
-      fieldErrors: {
-        _form: error instanceof Error ? error.message : "Unable to submit event.",
-      },
+      fieldErrors: mapEventApiErrorToFields(message, response.status),
+      status: response.status,
     };
   }
+
+  const data = (await response.json()) as CreateEventResponse;
+  return { ok: true, response: data };
 }

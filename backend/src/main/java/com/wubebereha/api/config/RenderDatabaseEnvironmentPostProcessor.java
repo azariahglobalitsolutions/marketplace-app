@@ -8,7 +8,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 
 /**
- * Maps Render's {@code DATABASE_URL} into {@code spring.datasource.url} before auto-configuration.
+ * Maps Render's {@code DATABASE_URL} into Spring datasource properties before auto-configuration.
  */
 public class RenderDatabaseEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
@@ -19,13 +19,22 @@ public class RenderDatabaseEnvironmentPostProcessor implements EnvironmentPostPr
             ConfigurableEnvironment environment,
             SpringApplication application
     ) {
-        String jdbcUrl = DatabaseUrlConverter.toSpringDatasourceUrl(environment.getProperty("DATABASE_URL"));
-        if (jdbcUrl == null) {
+        DatabaseUrlConverter.ParsedDatabaseConfig config =
+                DatabaseUrlConverter.parseDatabaseUrl(environment.getProperty("DATABASE_URL"));
+        if (config == null) {
             return;
         }
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put("spring.datasource.url", jdbcUrl);
+        properties.put("spring.datasource.url", config.jdbcUrl());
+
+        if (config.username() != null && !config.username().isBlank()) {
+            properties.put("spring.datasource.username", config.username());
+        }
+        if (config.password() != null) {
+            properties.put("spring.datasource.password", config.password());
+        }
+
         environment.getPropertySources().addFirst(new MapPropertySource(PROPERTY_SOURCE, properties));
     }
 }

@@ -3,6 +3,7 @@ import { Clock, MapPin } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OptimizedImage } from "@/components/media/optimized-image";
 import { resolveMediaUrl } from "@/lib/api/media-url";
 import { formatListingDate, formatListingTime } from "@/lib/home/format";
 import type { ListingResponse } from "@/types/api";
@@ -62,12 +63,12 @@ export function EventCard({ event, apiBaseUrl }: EventCardProps) {
 
         {imageUrl ? (
           <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden rounded-lg bg-muted sm:aspect-square sm:w-28">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <OptimizedImage
               src={imageUrl}
               alt=""
-              className="h-full w-full object-cover"
-              loading="lazy"
+              fill
+              sizes="112px"
+              className="object-cover"
             />
           </div>
         ) : null}

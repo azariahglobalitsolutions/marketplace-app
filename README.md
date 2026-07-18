@@ -21,10 +21,11 @@ python app.py
 
 Open `http://localhost:5000`
 
-## Default Admin Account
+## Admin access (Spring Boot API)
 
-- **Email:** `admin@habeshaevents.com`
-- **Password:** `admin123`
+Production admin accounts are **not** seeded in the database. Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` (minimum 12 characters) on the backend service when no admin exists yet. The bootstrap job creates the first admin on startup.
+
+For local development, register a normal user via `/register` or set admin env vars in `backend/.env`.
 
 ## Pages
 

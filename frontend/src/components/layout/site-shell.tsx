@@ -15,7 +15,7 @@ export function SiteShell({ children }: SiteShellProps) {
         Skip to main content
       </a>
       <SiteHeader />
-      <div id="main-content">{children}</div>
+      <main id="main-content">{children}</main>
       <SiteFooter />
     </>
   );

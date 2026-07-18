@@ -6,6 +6,7 @@ import com.wubebereha.api.service.AuthService;
 import com.wubebereha.api.web.dto.Dto.AuthRequest;
 import com.wubebereha.api.web.dto.Dto.AuthResponse;
 import com.wubebereha.api.web.dto.Dto.MeResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,12 +29,12 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public AuthResponse register(@RequestBody AuthRequest request) {
+    public AuthResponse register(@Valid @RequestBody AuthRequest request) {
         return authService.register(request);
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody AuthRequest request) {
+    public AuthResponse login(@Valid @RequestBody AuthRequest request) {
         return authService.login(request);
     }
 

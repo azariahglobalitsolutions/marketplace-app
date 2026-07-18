@@ -12,5 +12,6 @@ spring:
 
 wubebereha:
   jwt-secret: test-secret-key-for-jwt-signing-32b
+  jwt-expiration-hours: 24
   upload-dir: ${java.io.tmpdir}/wubebereha-uploads-test
   frontend-allowed-origin: ${FRONTEND_ALLOWED_ORIGIN:http://localhost:3000}

@@ -3,6 +3,7 @@ import { Geist_Mono, Noto_Sans_Ethiopic, Source_Sans_3 } from "next/font/google"
 import { QueryProvider } from "@/components/providers/query-provider";
 import { SiteShell } from "@/components/layout/site-shell";
 import { brand } from "@/lib/brand";
+import { getSiteUrl } from "@/lib/config/site";
 import "./globals.css";
 
 const sourceSans = Source_Sans_3({
@@ -23,11 +24,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: {
     default: `${brand.name} ${brand.nameAmharic}`,
     template: `%s | ${brand.name}`,
   },
   description: brand.description,
+  openGraph: {
+    type: "website",
+    siteName: brand.name,
+  },
 };
 
 export default function RootLayout({

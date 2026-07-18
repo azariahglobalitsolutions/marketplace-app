@@ -43,7 +43,7 @@ class WubeBerehaApiApplicationTests {
         String registerBody = """
                 {
                   "email": "tester@example.com",
-                  "password": "secret1",
+                  "password": "secret123456",
                   "phone_country": "US"
                 }
                 """;

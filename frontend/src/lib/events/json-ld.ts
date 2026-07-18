@@ -3,6 +3,7 @@ import { format, parseISO } from "date-fns";
 import { resolveMediaUrl } from "@/lib/api/media-url";
 import { formatEventAddress } from "@/lib/events/address";
 import { buildEventCanonicalPath } from "@/lib/events/slug";
+import { serializeJsonLd } from "@/lib/seo/safe-json-ld";
 import { brand } from "@/lib/brand";
 import type { ListingResponse } from "@/types/api";
 
@@ -39,14 +40,8 @@ function combineDateAndTime(date: string, time: string | null | undefined): stri
     return date;
   }
 
-  try {
-    const [hours, minutes] = time.split(":").map(Number);
-    const parsed = parseISO(date);
-    parsed.setHours(hours, minutes ?? 0, 0, 0);
-    return parsed.toISOString();
-  } catch {
-    return date;
-  }
+  const normalizedTime = time.length === 5 ? `${time}:00` : time;
+  return `${date}T${normalizedTime}`;
 }
 
 export function buildEventJsonLd(options: {
@@ -80,7 +75,7 @@ export function buildEventJsonLd(options: {
     );
   }
 
-  if (!isExpired && event.status === "approved") {
+  if (event.status === "approved") {
     jsonLd.eventStatus = "https://schema.org/EventScheduled";
   }
 
@@ -113,7 +108,7 @@ export function buildEventJsonLd(options: {
 }
 
 export function serializeEventJsonLd(jsonLd: EventJsonLd): string {
-  return JSON.stringify(jsonLd);
+  return serializeJsonLd(jsonLd);
 }
 
 export function buildEventMetadataDescription(event: ListingResponse): string {

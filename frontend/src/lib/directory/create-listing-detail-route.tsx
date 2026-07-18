@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { ListingDetailView } from "@/components/directory/listing-detail-view";
 import { PageContainer } from "@/components/layout/page-container";
+import { ErrorState } from "@/components/patterns/error-state";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { resolveMediaUrl } from "@/lib/api/media-url";
@@ -39,7 +40,7 @@ export function createListingDetailMetadata(
     }
 
     const data = await getCachedListingDetailData(section, listingId);
-    if (data.notFound) {
+    if (("notFound" in data && data.notFound) || "serverError" in data) {
       return {
         title: "Listing not found",
       };
@@ -88,8 +89,22 @@ export function createListingDetailPage(section: DirectorySectionConfig) {
 
     const data = await getCachedListingDetailData(section, listingId);
 
-    if (data.notFound) {
+    if ("notFound" in data && data.notFound) {
       notFound();
+    }
+
+    if ("serverError" in data) {
+      return (
+        <PageContainer
+          breadcrumbs={[
+            { label: "Home", href: "/" },
+            { label: section.shortTitle, href: section.path },
+            { label: "Error" },
+          ]}
+        >
+          <ErrorState title="Unable to load listing" message={data.message} />
+        </PageContainer>
+      );
     }
 
     const siteUrl = getSiteUrl();

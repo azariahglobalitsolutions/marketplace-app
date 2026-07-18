@@ -62,7 +62,7 @@ describe("buildIcsCalendarContent", () => {
 
     expect(content).toContain("BEGIN:VCALENDAR");
     expect(content).toContain("SUMMARY:Coffee Ceremony Workshop");
-    expect(content).toContain("LOCATION:Community Center\\, Silver Spring\\, Maryland");
+    expect(content).toContain("DTSTART;TZID=America/New_York:20260911T180000");
   });
 
   it("returns null when no event date exists", () => {
@@ -80,6 +80,7 @@ describe("buildEventJsonLd", () => {
     });
 
     expect(jsonLd.name).toBe("Coffee Ceremony Workshop");
+    expect(jsonLd.startDate).toBe("2026-09-11T18:00:00");
     expect(jsonLd.location?.address.addressLocality).toBe("Silver Spring");
     expect(jsonLd.image).toEqual([
       "http://localhost:8080/uploads/picture_test.jpg",

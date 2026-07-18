@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { EventDetailView } from "@/components/events/event-detail-view";
 import { PageContainer } from "@/components/layout/page-container";
+import { ErrorState } from "@/components/patterns/error-state";
 import { resolveMediaUrl } from "@/lib/api/media-url";
 import { getSiteUrl } from "@/lib/config/site";
 import { isExpiredEvent } from "@/lib/events/event-status";
@@ -35,7 +36,7 @@ export async function generateMetadata({
   }
 
   const data = await getEventDetailData(listingId);
-  if (data.notFound) {
+  if (("notFound" in data && data.notFound) || "serverError" in data) {
     return {
       title: "Event not found",
     };
@@ -55,7 +56,7 @@ export async function generateMetadata({
     openGraph: {
       title: `${event.title} | ${brand.name}`,
       description,
-      type: "website",
+      type: "article",
       url: canonicalPath,
       images: imageUrl ? [{ url: imageUrl, alt: `${event.title} flyer` }] : undefined,
     },
@@ -80,8 +81,22 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
   const data = await getEventDetailData(listingId);
 
-  if (data.notFound) {
+  if ("notFound" in data && data.notFound) {
     notFound();
+  }
+
+  if ("serverError" in data) {
+    return (
+      <PageContainer
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Events & Activities", href: "/events" },
+          { label: "Error" },
+        ]}
+      >
+        <ErrorState title="Unable to load event" message={data.message} />
+      </PageContainer>
+    );
   }
 
   const siteUrl = getSiteUrl();

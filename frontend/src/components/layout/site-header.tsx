@@ -2,8 +2,6 @@ import Link from "next/link";
 
 import { Container } from "@/components/layout/container";
 import { DesktopNavigation } from "@/components/layout/desktop-navigation";
-import { GlobalSearchTrigger } from "@/components/layout/global-search-trigger";
-import { LocationSelector } from "@/components/layout/location-selector";
 import { Logo } from "@/components/layout/logo";
 import { MobileNavigation } from "@/components/layout/mobile-navigation";
 import { buttonVariants } from "@/components/ui/button";
@@ -17,11 +15,8 @@ export function SiteHeader() {
           <div className="flex items-center gap-3">
             <MobileNavigation />
             <Logo className="min-w-0 flex-1 lg:flex-none" />
-            <div className="hidden flex-1 justify-center px-4 md:flex">
-              <GlobalSearchTrigger />
-            </div>
+            <div className="hidden flex-1 justify-center px-4 md:flex" />
             <div className="hidden items-center gap-3 lg:flex">
-              <LocationSelector />
               {actionNavigation.map((item) => (
                 <Link
                   key={item.href}
@@ -32,10 +27,6 @@ export function SiteHeader() {
                 </Link>
               ))}
             </div>
-          </div>
-          <div className="flex flex-col gap-3 md:hidden">
-            <GlobalSearchTrigger />
-            <LocationSelector />
           </div>
           <DesktopNavigation />
         </div>

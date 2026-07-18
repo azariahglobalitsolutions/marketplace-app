@@ -1,5 +1,8 @@
 package com.wubebereha.api.web.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
@@ -12,10 +15,10 @@ public final class Dto {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record AuthRequest(
-            String email,
+            @Email String email,
             String phone,
             @JsonProperty("phone_country") String phoneCountry,
-            String password
+            @NotBlank @Size(min = 12, max = 128) String password
     ) {
     }
 

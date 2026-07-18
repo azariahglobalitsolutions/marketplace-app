@@ -15,6 +15,7 @@ import { EventShareButton } from "@/components/events/event-share-button";
 import { RelatedEventsSection } from "@/components/events/related-events-section";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
+import { OptimizedImage } from "@/components/media/optimized-image";
 import { resolveMediaUrl } from "@/lib/api/media-url";
 import { formatEventAddress } from "@/lib/events/address";
 import { isExpiredEvent } from "@/lib/events/event-status";
@@ -96,10 +97,11 @@ export function EventDetailView({
             </h2>
             {flyerUrl ? (
               <div className="overflow-hidden rounded-2xl border border-border bg-muted">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <OptimizedImage
                   src={flyerUrl}
                   alt={`${event.title} flyer`}
+                  width={1200}
+                  height={900}
                   className="max-h-[36rem] w-full object-contain"
                 />
               </div>

@@ -1,5 +1,8 @@
 server:
   port: ${PORT:8080}
+  error:
+    include-message: never
+    include-stacktrace: never
 
 spring:
   application:
@@ -18,7 +21,7 @@ spring:
           time_zone: UTC
   flyway:
     enabled: true
-    baseline-on-migrate: true
+    baseline-on-migrate: false
   servlet:
     multipart:
       max-file-size: 5MB
@@ -37,7 +40,13 @@ management:
       export:
         enabled: true
 
+logging:
+  level:
+    root: INFO
+    org.springframework.security: WARN
+
 wubebereha:
   jwt-secret: ${JWT_SECRET:change-this-to-a-long-random-secret-key}
+  jwt-expiration-hours: ${JWT_EXPIRATION_HOURS:24}
   upload-dir: ${UPLOAD_DIR:../public/uploads}
   frontend-allowed-origin: ${FRONTEND_ALLOWED_ORIGIN:http://localhost:3000}

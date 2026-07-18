@@ -1,26 +1,15 @@
-const STORAGE_KEY = "wubebereha.access_token";
-
+/**
+ * Client auth state is managed via httpOnly cookies and `/api/auth/me`.
+ * Use {@link useAuth} in Client Components instead of reading tokens directly.
+ */
 export function getAccessToken(): string | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  const token = window.localStorage.getItem(STORAGE_KEY)?.trim();
-  return token || null;
+  return null;
 }
 
-export function setAccessToken(token: string): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  window.localStorage.setItem(STORAGE_KEY, token.trim());
+export function setAccessToken(_token: string): void {
+  // Tokens are stored in httpOnly cookies by /api/auth/login and /api/auth/register.
 }
 
 export function clearAccessToken(): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  window.localStorage.removeItem(STORAGE_KEY);
+  // Use logoutClient() from use-auth.ts or POST /api/auth/logout.
 }

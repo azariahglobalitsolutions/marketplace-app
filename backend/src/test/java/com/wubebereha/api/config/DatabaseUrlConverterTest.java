@@ -10,7 +10,17 @@ class DatabaseUrlConverterTest {
     void convertsRenderPostgresqlUrlToJdbc() {
         assertThat(DatabaseUrlConverter.toSpringDatasourceUrl(
                 "postgresql://user:pass@host.example:5432/wubebereha"))
-                .isEqualTo("jdbc:postgresql://user:pass@host.example:5432/wubebereha");
+                .isEqualTo("jdbc:postgresql://host.example:5432/wubebereha");
+    }
+
+    @Test
+    void parsesCredentialsFromRenderUrl() {
+        DatabaseUrlConverter.ParsedDatabaseConfig config = DatabaseUrlConverter.parseDatabaseUrl(
+                "postgresql://wubebereha:secret@host.example:5432/wubebereha");
+
+        assertThat(config.jdbcUrl()).isEqualTo("jdbc:postgresql://host.example:5432/wubebereha");
+        assertThat(config.username()).isEqualTo("wubebereha");
+        assertThat(config.password()).isEqualTo("secret");
     }
 
     @Test

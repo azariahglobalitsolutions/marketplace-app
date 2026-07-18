@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { OptimizedImage } from "@/components/media/optimized-image";
 import { resolveMediaUrl } from "@/lib/api/media-url";
 import type { DirectorySectionConfig } from "@/lib/directory/sections";
 import type { ListingResponse } from "@/types/api";
@@ -41,12 +42,12 @@ export function ListingCard({
     >
       {imageUrl ? (
         <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <OptimizedImage
             src={imageUrl}
             alt=""
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
             className="h-full w-full object-cover"
-            loading="lazy"
           />
         </div>
       ) : null}

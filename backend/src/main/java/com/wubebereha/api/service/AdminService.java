@@ -5,11 +5,13 @@ import com.wubebereha.api.domain.Listing;
 import com.wubebereha.api.domain.ListingStatus;
 import com.wubebereha.api.repository.AdInquiryRepository;
 import com.wubebereha.api.repository.ListingRepository;
+import com.wubebereha.api.service.ListingService;
 import com.wubebereha.api.util.CategoryCatalog;
 import com.wubebereha.api.util.PhoneUtils;
 import com.wubebereha.api.util.PricingTiers;
 import com.wubebereha.api.web.dto.Dto.AdvertiseInquiryRequest;
 import com.wubebereha.api.web.dto.Dto.AdvertiseInquiryResponse;
+import com.wubebereha.api.web.dto.Dto.ListingResponse;
 import com.wubebereha.api.web.dto.Dto.TiersResponse;
 import java.util.HashMap;
 import java.util.List;
@@ -25,10 +27,16 @@ public class AdminService {
 
     private final ListingRepository listingRepository;
     private final AdInquiryRepository adInquiryRepository;
+    private final ListingService listingService;
 
-    public AdminService(ListingRepository listingRepository, AdInquiryRepository adInquiryRepository) {
+    public AdminService(
+            ListingRepository listingRepository,
+            AdInquiryRepository adInquiryRepository,
+            ListingService listingService
+    ) {
         this.listingRepository = listingRepository;
         this.adInquiryRepository = adInquiryRepository;
+        this.listingService = listingService;
     }
 
     public Map<String, Object> pendingListings() {
@@ -90,10 +98,11 @@ public class AdminService {
     }
 
     private Map<String, Object> actionResponse(String message, Listing listing) {
+        ListingResponse listingResponse = listingService.toResponse(listing, true);
         Map<String, Object> response = new HashMap<>();
         response.put("message", message);
-        response.put("listing", listing);
-        response.put("event", listing);
+        response.put("listing", listingResponse);
+        response.put("event", listingResponse);
         return response;
     }
 

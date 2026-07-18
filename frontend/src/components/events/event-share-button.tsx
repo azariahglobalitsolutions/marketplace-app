@@ -33,7 +33,11 @@ export function EventShareButton({ title, url }: EventShareButtonProps) {
         <Share2 aria-hidden />
         Share event
       </Button>
-      {message ? <p className="text-caption text-muted-foreground">{message}</p> : null}
+      {message ? (
+        <p className="text-caption text-muted-foreground" aria-live="polite">
+          {message}
+        </p>
+      ) : null}
     </div>
   );
 }

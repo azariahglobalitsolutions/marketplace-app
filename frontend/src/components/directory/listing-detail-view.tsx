@@ -5,6 +5,7 @@ import { ListingDetailLayout } from "@/components/directory/listing-detail-layou
 import { RelatedListingsSection } from "@/components/directory/related-listings-section";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
+import { OptimizedImage } from "@/components/media/optimized-image";
 import { resolveMediaUrl } from "@/lib/api/media-url";
 import { formatEventAddress } from "@/lib/events/address";
 import type { DirectorySectionConfig } from "@/lib/directory/sections";
@@ -62,10 +63,11 @@ export function ListingDetailView({
           </h2>
           {imageUrl ? (
             <div className="overflow-hidden rounded-2xl border border-border bg-muted">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <OptimizedImage
                 src={imageUrl}
                 alt={`${listing.title} photo`}
+                width={1200}
+                height={900}
                 className="max-h-[36rem] w-full object-contain"
               />
             </div>
