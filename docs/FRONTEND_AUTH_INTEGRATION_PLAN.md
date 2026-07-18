@@ -232,9 +232,12 @@ Non-admin authenticated users receive **`403 Forbidden`** from Spring Security.
 
 ### 6.1 Current backend state
 
-- `SecurityConfig` calls `.cors(Customizer.withDefaults())`.
-- **No** `CorsConfigurationSource` bean, `@CrossOrigin`, or `spring.web.cors.*` properties exist in the repo.
-- Default Spring Boot CORS behavior may **block** browser `fetch` from `http://localhost:3000` → `http://localhost:8080` for non-simple requests.
+- `SecurityConfig` wires an explicit `CorsConfigurationSource` bean from `CorsConfig`.
+- Allowed origin is configured with the **`FRONTEND_ALLOWED_ORIGIN`** environment variable (defaults to `http://localhost:3000` in development).
+- Production (Render): set `FRONTEND_ALLOWED_ORIGIN` to the deployed frontend URL — do not hard-code it in Java source.
+- Credentials are enabled (`Allow-Credentials: true`), so wildcard `*` origins are not used.
+- Allowed methods: `GET`, `POST`, `OPTIONS`.
+- Allowed headers: `Authorization`, `Content-Type`, `Accept`.
 
 ### 6.2 Frontend deployment scenarios
 
