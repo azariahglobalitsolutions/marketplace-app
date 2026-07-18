@@ -1,11 +1,2 @@
-services:
-  - type: web
-    name: habesha-events-usa
-    runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn your_application.wsgi --bind 0.0.0.0:$PORT
-    envVars:
-      - key: JWT_SECRET
-        generateValue: true
-      - key: FLASK_ENV
-        value: production
+# Render blueprint — services will be wired when frontend/backend are implemented.
+# See docs/DEPLOYMENT.md for the planned deployment layout.

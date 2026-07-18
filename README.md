@@ -1,98 +1,44 @@
-# Wube Bereha ውቤ በረሃ — Habesha Events in USA & Yellow Pages
+# Wube Bereha
 
-Eventbrite-style web application for listing Habesha cultural events across the United States.
+Habesha community discovery platform — migrating from Flask to **Next.js** (frontend) and **Spring Boot** (backend).
 
-## Tech Stack
+## Repository layout
 
-- **Frontend:** HTML5, Tailwind CSS, JavaScript
-- **Backend:** Python + Flask
-- **Database:** SQLite (modular config for future PostgreSQL migration)
-- **Analytics:** prometheus-client (metrics at `/metrics`)
+| Path | Description |
+|------|-------------|
+| [`legacy-python/`](legacy-python/) | Archived Flask application (preserved, not deleted) |
+| [`frontend/`](frontend/) | Next.js scaffold (TypeScript, Tailwind, App Router) |
+| [`backend/`](backend/) | Spring Boot scaffold (Java 21, Maven) |
+| [`docs/`](docs/) | Project documentation |
 
-## Quick Start
+## Quick start (scaffolds)
+
+### Frontend
 
 ```bash
-cp .env.example .env
-python -m venv venv
-source venv/bin/activate
+cd frontend
+npm install
+npm run dev
+```
+
+### Backend
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+### Legacy Flask (reference only)
+
+```bash
+cd legacy-python
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python app.py
 ```
 
-Open `http://localhost:5000`
+## Migration status
 
-## Default Admin Account
-
-- **Email:** `admin@habeshaevents.com`
-- **Password:** `admin123`
-
-## Pages
-
-| Route | Description |
-|-------|-------------|
-| `/` | Daily events portal with state filter |
-| `/login.html` | Sign up / sign in |
-| `/advertise.html` | Advertising pricing & inquiry form |
-| `/admin/moderation` | Admin approval dashboard |
-
-## Access Rules
-
-- **Public:** Browse approved events, filter by state, view daily schedules
-- **Authenticated:** Create event listings, view organizer contact details
-- **Admin:** Approve/reject pending events, view ad inquiries
-
-## API Endpoints
-
-- `GET /api/events?state=Virginia` — List approved events (strict state filter)
-- `POST /api/events` — Create event (auth required, status: pending)
-- `POST /api/auth/register` — Register
-- `POST /api/auth/login` — Login
-- `GET /api/admin/pending` — Pending events (admin)
-- `POST /api/admin/:id/approve` — Approve event (admin)
-- `GET /api/advertise/tiers` — Pricing tiers
-- `POST /api/advertise/inquiry` — Submit ad inquiry
-- `GET /metrics` — Prometheus metrics
-- `GET /health` — Health check
-
-## Environment Variables
-
-| Name | Description |
-|------|-------------|
-| `PORT` | Server port (default: 5000) |
-| `JWT_SECRET` | Secret for JWT tokens |
-| `DATABASE_PATH` | SQLite file path |
-| `FLASK_ENV` | `development` or `production` |
-
-## Render Deployment (Python)
-
-| Setting | Value |
-|---------|--------|
-| **Environment** | `Python` |
-| **Build Command** | `pip install -r requirements.txt` |
-| **Start Command** | `gunicorn wsgi:app --bind 0.0.0.0:$PORT` |
-| **Branch** | `main` |
-
-### Environment Variables on Render
-
-| Name of Variable | Value |
-|------------------|-------|
-| `JWT_SECRET` | A long random secret string |
-
-## Project Structure
-
-```
-├── app.py
-├── wsgi.py
-├── requirements.txt
-├── public/
-│   ├── index.html
-│   ├── login.html
-│   ├── admin.html
-│   ├── advertise.html
-│   └── js/
-├── src/
-│   ├── config/db.py
-│   ├── middleware/
-│   └── routes/
-└── data/          (SQLite DB, gitignored)
-```
+- Flask code is archived under `legacy-python/`.
+- `frontend/` and `backend/` contain project structure only — business features are not implemented yet.
+- A full backup of the pre-migration tree exists on the `flask-backup` branch.
