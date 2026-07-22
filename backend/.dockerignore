@@ -1,0 +1,21 @@
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# IDE and OS files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Logs and test output
+*.log
+hs_err_pid*
+
+# Git
+.git/
+.gitignore
